@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import CustomBusinessError from '../utils/errors/CustomBusinessError';
+import HttpBusinessError from '../utils/errors/HttpBusinessError';
 
 export default async function errors(
   error: Error,
@@ -7,7 +7,7 @@ export default async function errors(
   res: Response,
   next: NextFunction
 ) {
-  if (error instanceof CustomBusinessError) {
+  if (error instanceof HttpBusinessError) {
     return res.status(error.statusCode).json({
       message: error.message,
       statusCode: error.statusCode,

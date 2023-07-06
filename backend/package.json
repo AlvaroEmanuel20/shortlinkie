@@ -8,7 +8,11 @@
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "migrate:dev": "npx prisma migrate dev --name",
+    "migrate:prod": "npx prisma migrate deploy",
+    "reset:dev": "npx prisma migrate reset",
+    "studio": "npx prisma studio"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",
@@ -18,14 +22,16 @@
     "@typescript-eslint/parser": "^5.60.1",
     "eslint": "^8.43.0",
     "nodemon": "^2.0.22",
+    "prisma": "^4.16.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.3"
   },
   "dependencies": {
+    "@prisma/client": "^4.16.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
-    "mongoose": "^7.3.1"
+    "nanoid": "^4.0.2"
   }
 }
