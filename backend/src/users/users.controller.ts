@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import UsersService from './users.service';
 import HttpBusinessError from '../utils/errors/HttpBusinessError';
+import CustomBusinessError from '../utils/errors/CustomBusinessError';
 
 export default class UsersController {
   async getUser(req: Request, res: Response) {
@@ -12,9 +13,12 @@ export default class UsersController {
 
   async update(req: Request, res: Response) {
     try {
-      //
+      const usersService = new UsersService();
+      const result = await usersService.updateUser(req.body, req.user.userId);
     } catch (error) {
-      //
+      if (error instanceof CustomBusinessError) {
+        throw new HttpBusinessError(error.message, 440, 'users');
+      }
     }
   }
 
