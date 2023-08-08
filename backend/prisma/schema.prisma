@@ -14,8 +14,10 @@ model User {
   userId    String     @id @default(uuid())
   name      String
   email     String     @unique
-  avatarUrl String     @unique
+  password  String
+  avatarUrl String?    @unique
   ShortUrl  ShortUrl[]
+  Source    Source[]
 }
 
 model ShortUrl {
@@ -26,7 +28,6 @@ model ShortUrl {
   userId      String
   user        User     @relation(fields: [userId], references: [userId])
   createdAt   DateTime @default(now())
-  updateAt    DateTime @updatedAt
   Source      Source[]
 }
 
@@ -35,4 +36,6 @@ model Source {
   clicks   Int      @default(0)
   shortId  String
   shortUrl ShortUrl @relation(fields: [shortId], references: [shortId])
+  userId   String
+  user     User     @relation(fields: [userId], references: [userId])
 }

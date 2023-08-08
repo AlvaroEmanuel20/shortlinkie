@@ -4,7 +4,8 @@ import cors from 'cors';
 import 'dotenv/config';
 import errors from './middlewares/errors';
 import logger from './middlewares/logger';
-import routes from './routes';
+import apiRoutes from './api.routes';
+import shortUrlsRoutes from './shortUrls/shortUrls.routes';
 
 const { PORT } = process.env;
 const app = express();
@@ -14,11 +15,12 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
+app.use('/', shortUrlsRoutes);
+app.use('/api', apiRoutes);
+app.get('/hello', (req, res) => {
   res.send('Hello World!');
 });
 
-app.use('/api', routes);
 app.use(errors);
 
 app.listen(PORT, () => {
