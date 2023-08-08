@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import ShortUrlsService from './shortUrls.service';
 import HttpBusinessError from '../utils/errors/HttpBusinessError';
+import { Prisma } from '@prisma/client';
 
 export default class ShortUrlsController {
   async getShortUrl(req: Request, res: Response) {
@@ -69,7 +70,17 @@ export default class ShortUrlsController {
 
       res.json({ shortId });
     } catch (error) {
-      console.log(error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new HttpBusinessError(
+            'There is an short url with this shortId',
+            409,
+            'shortUrls'
+          );
+        } else {
+          throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
+        }
+      }
     }
   }
 
@@ -83,7 +94,7 @@ export default class ShortUrlsController {
 
       res.json({ shortId });
     } catch (error) {
-      console.log(error);
+      throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
     }
   }
 }

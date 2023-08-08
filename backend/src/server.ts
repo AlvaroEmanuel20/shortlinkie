@@ -17,9 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/', shortUrlsRoutes);
 app.use('/api', apiRoutes);
-app.get('/hello', (req, res) => {
-  res.send('Hello World!');
-});
 
 app.use(errors);
 
