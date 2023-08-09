@@ -7,5 +7,4 @@ export interface UpdateShortUrlData {
   title?: string;
   originalUrl?: string;
   shortId?: string;
-  clicks?: number;
 }
