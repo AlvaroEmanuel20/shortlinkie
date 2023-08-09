@@ -15,19 +15,23 @@ shortUrlsRoutes.get(
   isAuthenticated,
   shortUrlsController.getShortUrl
 );
-shortUrlsRoutes.get('/:shortId', isAuthenticated, shortUrlsController.redirect);
+
+shortUrlsRoutes.get('/:shortId', shortUrlsController.redirect);
+
 shortUrlsRoutes.post(
   '/',
   isAuthenticated,
   validate(createShortUrlSchema),
   shortUrlsController.create
 );
+
 shortUrlsRoutes.patch(
   '/:shortId',
   isAuthenticated,
   validate(updateShortUrlSchema),
   shortUrlsController.update
 );
+
 shortUrlsRoutes.delete(
   '/:shortId',
   isAuthenticated,

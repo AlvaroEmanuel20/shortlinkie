@@ -2,6 +2,14 @@ import { NextFunction, Request, Response } from 'express';
 import HttpBusinessError from '../utils/errors/HttpBusinessError';
 import { verify } from 'jsonwebtoken';
 
+interface JWTPayload {
+  userId: string;
+  email: string;
+  sub: string;
+  iat: number;
+  exp: number;
+}
+
 export default async function isAuthenticated(
   req: Request,
   res: Response,
@@ -11,11 +19,15 @@ export default async function isAuthenticated(
   if (!token) throw new HttpBusinessError('Token not found', 401, 'auth');
 
   try {
-    const { userId } = verify(token, process.env.JWT_SECRET as string) as {
-      userId: string;
+    const { userId } = verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as JWTPayload;
+
+    req.user = {
+      userId,
     };
 
-    req.user.userId = userId;
     next();
   } catch (error) {
     throw new HttpBusinessError('Invalid token', 401, 'auth');

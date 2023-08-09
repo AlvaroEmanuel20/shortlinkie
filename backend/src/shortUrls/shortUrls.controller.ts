@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import ShortUrlsService from './shortUrls.service';
 import HttpBusinessError from '../utils/errors/HttpBusinessError';
 import { Prisma } from '@prisma/client';
+import CustomBusinessError from '../utils/errors/CustomBusinessError';
 
 export default class ShortUrlsController {
   async getShortUrl(req: Request, res: Response) {
@@ -27,17 +28,23 @@ export default class ShortUrlsController {
   }
 
   async redirect(req: Request, res: Response) {
-    const shortUrlsService = new ShortUrlsService();
-    const { shortId } = req.params;
-    const { src } = req.query as { src?: string };
+    try {
+      const shortUrlsService = new ShortUrlsService();
+      const { shortId } = req.params;
+      const { src } = req.query as { src?: string };
 
-    const result = await shortUrlsService.getShortUrl(shortId);
+      const result = await shortUrlsService.getShortUrl(shortId);
 
-    if (!result)
-      throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
+      if (!result)
+        throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
 
-    await shortUrlsService.increaseClicks(shortId, req.user.userId, src);
-    res.redirect(result.originalUrl);
+      await shortUrlsService.increaseClicks(shortId, src);
+      res.redirect(result.originalUrl);
+    } catch (error) {
+      if (error instanceof CustomBusinessError) {
+        throw new HttpBusinessError(error.message, 404, 'shortUrls');
+      }
+    }
   }
 
   async create(req: Request, res: Response) {

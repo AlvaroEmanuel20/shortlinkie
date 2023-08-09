@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import prisma from '../utils/prisma';
 import { CreateShortUrlData, UpdateShortUrlData } from './shortUrls.interfaces';
+import CustomBusinessError from '../utils/errors/CustomBusinessError';
 
 export default class ShortUrlsService {
   async getShortUrl(shortId: string) {
@@ -27,14 +28,20 @@ export default class ShortUrlsService {
     return { shortId: shortUrl.shortId };
   }
 
-  async increaseClicks(shortId: string, userId: string, src?: string) {
+  async increaseClicks(shortId: string, src?: string) {
+    const shortUrl = await prisma.shortUrl.findUnique({ where: { shortId } });
+    if (!shortUrl)
+      throw new CustomBusinessError('Short Url not found', 'shortUrls');
+
     if (src) {
       const sourceExists = await prisma.source.findUnique({
         where: { name: src },
       });
 
       if (!sourceExists)
-        await prisma.source.create({ data: { name: src, shortId, userId } });
+        await prisma.source.create({
+          data: { name: src, shortId, userId: shortUrl.userId },
+        });
 
       await prisma.source.update({
         where: { name: src },
