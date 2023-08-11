@@ -4,15 +4,38 @@ import { CreateShortUrlData, UpdateShortUrlData } from './shortUrls.interfaces';
 import CustomBusinessError from '../utils/errors/CustomBusinessError';
 
 export default class ShortUrlsService {
-  async getShortUrl(shortId: string) {
-    return await prisma.shortUrl.findUnique({ where: { shortId } });
+  async getAllShortUrls(userId: string, sources?: boolean) {
+    if (sources)
+      return await prisma.shortUrl.findMany({
+        where: { userId },
+        include: {
+          Source: {
+            select: {
+              name: true,
+              clicks: true,
+            },
+          },
+        },
+      });
+
+    return await prisma.shortUrl.findMany({ where: { userId } });
   }
 
-  async getShortUrlAndSources(shortId: string) {
-    return await prisma.shortUrl.findUnique({
-      where: { shortId },
-      include: { Source: { select: { name: true, clicks: true } } },
-    });
+  async getShortUrl(shortId: string, sources?: boolean) {
+    if (sources)
+      return await prisma.shortUrl.findUnique({
+        where: { shortId },
+        include: {
+          Source: {
+            select: {
+              name: true,
+              clicks: true,
+            },
+          },
+        },
+      });
+
+    return await prisma.shortUrl.findUnique({ where: { shortId } });
   }
 
   async createShortUrl(data: CreateShortUrlData, userId: string) {

@@ -4,27 +4,34 @@ import HttpBusinessError from '../utils/errors/HttpBusinessError';
 import { Prisma } from '@prisma/client';
 import CustomBusinessError from '../utils/errors/CustomBusinessError';
 
+interface SourcesQuery {
+  sources?: boolean;
+}
+
 export default class ShortUrlsController {
+  async getAllShortUrl(req: Request, res: Response) {
+    const shortUrlsService = new ShortUrlsService();
+    const { sources } = req.query as SourcesQuery;
+    const shortUrls = await shortUrlsService.getAllShortUrls(
+      req.user.userId,
+      sources
+    );
+
+    res.json(shortUrls);
+  }
+
   async getShortUrl(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
-    const shortUrl = await shortUrlsService.getShortUrl(req.params.shortId);
+    const { sources } = req.query as SourcesQuery;
+    const shortUrl = await shortUrlsService.getShortUrl(
+      req.params.shortId,
+      sources
+    );
 
     if (!shortUrl)
       throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
 
     res.json(shortUrl);
-  }
-
-  async getShortUrlWithSources(req: Request, res: Response) {
-    const shortUrlsService = new ShortUrlsService();
-    const shortUrlAndSources = await shortUrlsService.getShortUrlAndSources(
-      req.params.shortId
-    );
-
-    if (!shortUrlAndSources)
-      throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
-
-    res.json(shortUrlAndSources);
   }
 
   async redirect(req: Request, res: Response) {

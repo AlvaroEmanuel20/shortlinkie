@@ -11,6 +11,12 @@ const shortUrlsRoutes = Router();
 const shortUrlsController = new ShortUrlsController();
 
 shortUrlsRoutes.get(
+  '/all',
+  isAuthenticated,
+  shortUrlsController.getAllShortUrl
+);
+
+shortUrlsRoutes.get(
   '/details/:shortId',
   isAuthenticated,
   shortUrlsController.getShortUrl
