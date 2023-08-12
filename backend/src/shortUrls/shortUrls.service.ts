@@ -51,6 +51,27 @@ export default class ShortUrlsService {
     return { shortId: shortUrl.shortId };
   }
 
+  async updateShortUrl(data: UpdateShortUrlData, shortId: string) {
+    await prisma.shortUrl.update({
+      where: { shortId },
+      data: { ...data },
+    });
+
+    return { shortId };
+  }
+
+  async deleteShortUrl(shortId: string) {
+    await prisma.source.deleteMany({ where: { shortId } });
+    await prisma.shortUrl.delete({ where: { shortId } });
+    return { shortId };
+  }
+
+  async deleteAllShortUrls(userId: string) {
+    await prisma.source.deleteMany({ where: { userId } });
+    await prisma.shortUrl.deleteMany({ where: { userId } });
+    return { userId };
+  }
+
   async increaseClicks(shortId: string, src?: string) {
     const shortUrl = await prisma.shortUrl.findUnique({ where: { shortId } });
     if (!shortUrl)
@@ -82,24 +103,16 @@ export default class ShortUrlsService {
     });
   }
 
-  async updateShortUrl(data: UpdateShortUrlData, shortId: string) {
-    await prisma.shortUrl.update({
-      where: { shortId },
-      data: { ...data },
-    });
+  async totalClicksAndUrls(userId: string) {
+    const shortUrls = await this.getAllShortUrls(userId);
+    const totalClicks = shortUrls.reduce(
+      (acc, value) => (acc += value.clicks),
+      0
+    );
 
-    return { shortId };
-  }
-
-  async deleteShortUrl(shortId: string) {
-    await prisma.source.deleteMany({ where: { shortId } });
-    await prisma.shortUrl.delete({ where: { shortId } });
-    return { shortId };
-  }
-
-  async deleteAllShortUrls(userId: string) {
-    await prisma.source.deleteMany({ where: { userId } });
-    await prisma.shortUrl.deleteMany({ where: { userId } });
-    return { userId };
+    return {
+      totalClicks,
+      totalUrls: shortUrls.length,
+    };
   }
 }

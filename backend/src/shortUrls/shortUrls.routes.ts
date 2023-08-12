@@ -17,6 +17,12 @@ shortUrlsRoutes.get(
 );
 
 shortUrlsRoutes.get(
+  '/all/totals',
+  isAuthenticated,
+  shortUrlsController.getTotalClicksAndUrls
+);
+
+shortUrlsRoutes.get(
   '/details/:shortId',
   isAuthenticated,
   shortUrlsController.getShortUrl

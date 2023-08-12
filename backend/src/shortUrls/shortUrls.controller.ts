@@ -34,6 +34,12 @@ export default class ShortUrlsController {
     res.json(shortUrl);
   }
 
+  async getTotalClicksAndUrls(req: Request, res: Response) {
+    const shortUrlsService = new ShortUrlsService();
+    const result = await shortUrlsService.totalClicksAndUrls(req.user.userId);
+    res.json(result);
+  }
+
   async redirect(req: Request, res: Response) {
     try {
       const shortUrlsService = new ShortUrlsService();
