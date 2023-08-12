@@ -5,7 +5,8 @@ import { Text } from '../components/Typography';
 import { Label } from '../components/Label';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
-import { EmptyLinkCard } from './components/EmptyLinkCard';
+//import { EmptyLinkCard } from './components/EmptyLinkCard';
+import LinkCard from './components/LinkCard';
 
 const HomeGrid = styled.main`
   display: grid;
@@ -97,8 +98,32 @@ export default function Home() {
           <h2 style={{ fontSize: theme.fontSize.md }}>Seus Links</h2>
 
           <Stack $spacing={15}>
-            <EmptyLinkCard color="rgba(71, 71, 71, 0.116)" />
-            <EmptyLinkCard color="rgba(194, 194, 194, 0.11)" />
+            {/*<EmptyLinkCard color="rgba(105, 105, 105, 0.082)" />
+            <EmptyLinkCard color="rgba(194, 194, 194, 0.11)" />*/}
+
+            <LinkCard
+              name="Google - Buscador de sites"
+              link="https://encurtando.com/google"
+              shortId="google"
+            />
+
+            <LinkCard
+              name="Google - Buscador de sites"
+              link="https://encurtando.com/google"
+              shortId="google"
+            />
+
+            <LinkCard
+              name="Google - Buscador de sites"
+              link="https://encurtando.com/google"
+              shortId="google"
+            />
+
+            <LinkCard
+              name="Google - Buscador de sites"
+              link="https://encurtando.com/google"
+              shortId="google"
+            />
           </Stack>
         </Stack>
       </Card>
