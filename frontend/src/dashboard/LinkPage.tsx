@@ -142,7 +142,7 @@ export default function LinkPage() {
             }}
           >
             <ReactApexChart
-              type="area"
+              type="bar" //or area
               height="100%"
               options={{
                 colors: [

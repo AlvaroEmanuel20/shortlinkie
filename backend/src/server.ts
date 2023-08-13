@@ -1,5 +1,6 @@
 import express from 'express';
 import 'express-async-errors';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import 'dotenv/config';
 import errors from './middlewares/errors';
@@ -11,6 +12,7 @@ const { PORT } = process.env;
 const app = express();
 
 app.use(logger);
+app.use(cookieParser());
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

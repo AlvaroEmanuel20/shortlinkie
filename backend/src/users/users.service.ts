@@ -5,7 +5,10 @@ import ShortUrlsService from '../shortUrls/shortUrls.service';
 
 export default class UsersService {
   async getUser(userId: string) {
-    return await prisma.user.findUnique({ where: { userId } });
+    return await prisma.user.findUnique({
+      where: { userId },
+      select: { userId: true, name: true, email: true, avatarUrl: true },
+    });
   }
 
   async createUser(data: CreateUserData) {

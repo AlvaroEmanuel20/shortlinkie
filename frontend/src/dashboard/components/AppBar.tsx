@@ -18,7 +18,7 @@ export default function Appbar() {
           style={{ minWidth: 380 }}
         />
 
-        <Avatar bgImg={People} />
+        <Avatar $bgImg={People} />
       </HStack>
     </AppbarStyle>
   );
