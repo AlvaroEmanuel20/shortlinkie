@@ -7,6 +7,8 @@ import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 //import { EmptyLinkCard } from './components/EmptyLinkCard';
 import LinkCard from './components/LinkCard';
+import Skeleton from './components/Skeleton';
+import { useState } from 'react';
 
 const HomeGrid = styled.main`
   display: grid;
@@ -21,28 +23,33 @@ const HomeGrid = styled.main`
 
 export default function Home() {
   const theme = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
     <HomeGrid>
-      <Card>
-        <Stack $spacing={8}>
-          <Text>Cliques totais:</Text>
+      <Skeleton isLoading={isLoading}>
+        <Card>
+          <Stack $spacing={8}>
+            <Text>Cliques totais:</Text>
 
-          <Text $fs={theme.fontSize.xl} $fw="bold">
-            580
-          </Text>
-        </Stack>
-      </Card>
+            <Text $fs={theme.fontSize.xl} $fw="bold">
+              580
+            </Text>
+          </Stack>
+        </Card>
+      </Skeleton>
 
-      <Card>
-        <Stack $spacing={8}>
-          <Text>URLs totais:</Text>
+      <Skeleton isLoading={isLoading}>
+        <Card>
+          <Stack $spacing={8}>
+            <Text>URLs totais:</Text>
 
-          <Text $fs={theme.fontSize.xl} $fw="bold">
-            40
-          </Text>
-        </Stack>
-      </Card>
+            <Text $fs={theme.fontSize.xl} $fw="bold">
+              40
+            </Text>
+          </Stack>
+        </Card>
+      </Skeleton>
 
       <Card>
         <Stack $spacing={20}>
@@ -101,29 +108,44 @@ export default function Home() {
             {/*<EmptyLinkCard color="rgba(105, 105, 105, 0.082)" />
             <EmptyLinkCard color="rgba(194, 194, 194, 0.11)" />*/}
 
-            <LinkCard
-              name="Google - Buscador de sites"
-              link="https://encurtando.com/google"
-              shortId="google"
-            />
+            <Skeleton
+              isLoading={isLoading}
+              $width={'100%'}
+              $height="61px"
+              $radius={theme.radius.base}
+            >
+              <LinkCard
+                name="Google - Buscador de sites"
+                link="https://encurtando.com/google"
+                shortId="google"
+              />
+            </Skeleton>
 
-            <LinkCard
-              name="Google - Buscador de sites"
-              link="https://encurtando.com/google"
-              shortId="google"
-            />
+            <Skeleton
+              isLoading={isLoading}
+              $width={'100%'}
+              $height="61px"
+              $radius={theme.radius.base}
+            >
+              <LinkCard
+                name="Google - Buscador de sites"
+                link="https://encurtando.com/google"
+                shortId="google"
+              />
+            </Skeleton>
 
-            <LinkCard
-              name="Google - Buscador de sites"
-              link="https://encurtando.com/google"
-              shortId="google"
-            />
-
-            <LinkCard
-              name="Google - Buscador de sites"
-              link="https://encurtando.com/google"
-              shortId="google"
-            />
+            <Skeleton
+              isLoading={isLoading}
+              $width={'100%'}
+              $height="61px"
+              $radius={theme.radius.base}
+            >
+              <LinkCard
+                name="Google - Buscador de sites"
+                link="https://encurtando.com/google"
+                shortId="google"
+              />
+            </Skeleton>
           </Stack>
         </Stack>
       </Card>

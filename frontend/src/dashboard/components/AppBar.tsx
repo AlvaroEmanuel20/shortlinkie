@@ -3,6 +3,7 @@ import { HStack } from '../../components/HStack';
 import { Input } from '../../components/Input';
 import { Avatar } from './Avatar';
 import People from '../../assets/people.jpg';
+import Skeleton from './Skeleton';
 
 const AppbarStyle = styled.header`
   margin-bottom: 30px;
@@ -18,7 +19,9 @@ export default function Appbar() {
           style={{ minWidth: 380 }}
         />
 
-        <Avatar $bgImg={People} />
+        <Skeleton isLoading={true} $width='40px' $height='40px' $radius='100%'>
+          <Avatar $bgImg={People} />
+        </Skeleton>
       </HStack>
     </AppbarStyle>
   );

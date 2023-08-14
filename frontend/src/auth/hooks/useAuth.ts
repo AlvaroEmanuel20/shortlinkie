@@ -2,17 +2,19 @@ import { useState } from 'react';
 import { apiClient } from '../../lib/apiClient';
 import { AxiosError } from 'axios';
 import { ApiError } from '../../lib/sharedTypes';
+import { useNavigate } from 'react-router-dom';
 
-interface LoginData {
+export interface LoginData {
   email: string;
   password: string;
 }
 
-interface SignUpData extends LoginData {
+export interface SignUpData extends LoginData {
   name: string;
 }
 
 export default function useAuth() {
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [loginError, setLoginError] = useState<ApiError>();
@@ -32,6 +34,7 @@ export default function useAuth() {
       ).data;
 
       setLoadingSignUp(false);
+      navigate('/login');
       return userId;
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
@@ -55,6 +58,7 @@ export default function useAuth() {
 
       setIsAuthenticated(true);
       setLoadingLogin(false);
+      navigate('/');
       return userId;
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
@@ -78,6 +82,7 @@ export default function useAuth() {
 
       setIsAuthenticated(false);
       setLoadingLogout(false);
+      navigate('/login');
       return success;
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
