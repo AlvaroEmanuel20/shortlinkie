@@ -8,6 +8,7 @@ const swaggerOptions: swaggerJSDoc.Options = {
       title: 'Encurtando API',
       version: '1.0.0',
     },
+    servers: [{ url: 'http://localhost:3002' }],
   },
   apis: ['**/*.ts'],
 };

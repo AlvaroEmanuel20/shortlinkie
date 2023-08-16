@@ -69,10 +69,12 @@ const usersController = new UsersController();
  *         name: Álvaro
  *
  * tags: Users
- * /users:
+ * /api/users:
  *   get:
  *     tags: [Users]
  *     summary: Get user details
+ *     security:
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         content:
@@ -133,6 +135,8 @@ const usersController = new UsersController();
  *   patch:
  *     tags: [Users]
  *     summary: Update a user
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -175,6 +179,8 @@ const usersController = new UsersController();
  *   delete:
  *     tags: [Users]
  *     summary: Delete a user
+ *     security:
+ *       - cookieAuth: []
  *     responses:
  *       200:
  *         content:
