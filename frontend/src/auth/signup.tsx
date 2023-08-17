@@ -12,7 +12,7 @@ import { InputError } from '../components/InputError';
 import { Loader } from '../components/Loader';
 
 export default function SignUp() {
-  const { signUp, loadingSignUp, signUpError } = useAuth();
+  const { signUp, loadingSignUp } = useAuth();
 
   const {
     register,

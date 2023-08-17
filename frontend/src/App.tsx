@@ -4,11 +4,16 @@ import Login from './auth/login';
 import SignUp from './auth/signup';
 import Home from './dashboard/Home';
 import LinkPage from './dashboard/LinkPage';
+import { AuthProvider } from './auth/context/AuthContext';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Dashboard />,
+    element: (
+      <AuthProvider>
+        <Dashboard />
+      </AuthProvider>
+    ),
     children: [
       {
         path: '',

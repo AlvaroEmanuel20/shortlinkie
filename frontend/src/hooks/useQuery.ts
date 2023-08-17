@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ApiError } from '../lib/sharedTypes';
+import { ApiError } from '../lib/interfaces';
 import { AxiosError } from 'axios';
 import { apiClient } from '../lib/apiClient';
 
@@ -21,6 +21,7 @@ export default function useQuery<T>(url: string) {
           setError({
             statusCode: error.response.status,
             message: error.response.data.message,
+            context: error.response.data.context,
           });
         }
 

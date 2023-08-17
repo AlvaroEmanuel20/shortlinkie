@@ -1,26 +1,44 @@
-import { ReactNode, createContext } from 'react';
-import useAuth from '../hooks/useAuth';
-import useQuery from '../../hooks/useQuery';
-import { User } from '../../lib/sharedTypes';
+import { ReactNode, createContext, useEffect, useState } from 'react';
+import { apiClient } from '../../lib/apiClient';
+import { User } from '../../lib/interfaces';
+import { AxiosError } from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContext {
   isAuthenticated: boolean;
-  user: {
-    userId: string;
-    name: string;
-    email: string;
-    avatarUrl: string;
-  };
+  user: User | undefined;
 }
 
 export const AuthContext = createContext<AuthContext | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { isAuthenticated } = useAuth();
-  const { data: user, isLoading, error } = useQuery<User>('/users');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User>();
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = (await apiClient.get<User>('/api/users')).data;
+        setUser(res);
+        setIsAuthenticated(true);
+        setIsLoading(false);
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) {
+            navigate('/login');
+          }
+        }
+
+        setIsLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   if (isLoading) return 'Carregando...';
-  if (error || !user) return 'Erro...';
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, user }}>

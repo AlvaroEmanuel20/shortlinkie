@@ -4,12 +4,16 @@ import { Input } from '../../components/Input';
 import { Avatar } from './Avatar';
 import People from '../../assets/people.jpg';
 import Skeleton from './Skeleton';
+import useQuery from '../../hooks/useQuery';
+import { User } from '../../lib/interfaces';
 
 const AppbarStyle = styled.header`
   margin-bottom: 30px;
 `;
 
 export default function Appbar() {
+  const { data: user, isLoading: isloadingUser } = useQuery<User>('/api/users');
+
   return (
     <AppbarStyle>
       <HStack $spacing={20} $justify="space-between">
@@ -19,8 +23,13 @@ export default function Appbar() {
           style={{ minWidth: 380 }}
         />
 
-        <Skeleton isLoading={true} $width='40px' $height='40px' $radius='100%'>
-          <Avatar $bgImg={People} />
+        <Skeleton
+          isLoading={isloadingUser}
+          $width="40px"
+          $height="40px"
+          $radius="100%"
+        >
+          <Avatar $bgImg={(user && user.avatarUrl) || People} />
         </Skeleton>
       </HStack>
     </AppbarStyle>

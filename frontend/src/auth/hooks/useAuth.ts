@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { apiClient } from '../../lib/apiClient';
 import { AxiosError } from 'axios';
-import { ApiError } from '../../lib/sharedTypes';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export interface LoginData {
   email: string;
@@ -15,12 +15,6 @@ export interface SignUpData extends LoginData {
 
 export default function useAuth() {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const [loginError, setLoginError] = useState<ApiError>();
-  const [logoutError, setLogoutError] = useState<ApiError>();
-  const [signUpError, setSignUpError] = useState<ApiError>();
-
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [loadingLogout, setLoadingLogout] = useState(false);
   const [loadingSignUp, setLoadingSignUp] = useState(false);
@@ -38,10 +32,9 @@ export default function useAuth() {
       return userId;
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
-        setSignUpError({
-          statusCode: error.response.status,
-          message: error.response.data.message,
-        });
+        if (error.response.status === 409) toast.error('Email já cadastrado');
+        if (error.response.status === 500)
+          toast.error('Erro interno no servidor');
       }
 
       setLoadingSignUp(false);
@@ -53,19 +46,19 @@ export default function useAuth() {
 
     try {
       const { userId } = (
-        await apiClient.post<{ userId: string }>('/auth/login', data)
+        await apiClient.post<{ userId: string }>('/api/auth/login', data)
       ).data;
 
-      setIsAuthenticated(true);
       setLoadingLogin(false);
       navigate('/');
       return userId;
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
-        setLoginError({
-          statusCode: error.response.status,
-          message: error.response.data.message,
-        });
+        if (error.response.status === 401) toast.error('Senha inválida');
+        if (error.response.status === 404)
+          toast.error('Usuário não encontrada');
+        if (error.response.status === 500)
+          toast.error('Erro interno no servidor');
       }
 
       setLoadingLogin(false);
@@ -77,19 +70,16 @@ export default function useAuth() {
 
     try {
       const { success } = (
-        await apiClient.post<{ success: boolean }>('/auth/logout')
+        await apiClient.post<{ success: boolean }>('/api/auth/logout')
       ).data;
 
-      setIsAuthenticated(false);
       setLoadingLogout(false);
       navigate('/login');
       return success;
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
-        setLogoutError({
-          statusCode: error.response.status,
-          message: error.response.data.message,
-        });
+        if (error.response.status === 500)
+          toast.error('Erro interno no servidor');
       }
 
       setLoadingLogout(false);
@@ -97,15 +87,11 @@ export default function useAuth() {
   };
 
   return {
-    isAuthenticated,
-    loginError,
     login,
     loadingLogin,
     logout,
     loadingLogout,
-    logoutError,
     signUp,
     loadingSignUp,
-    signUpError,
   };
 }
