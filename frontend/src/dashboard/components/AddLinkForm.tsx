@@ -18,7 +18,7 @@ interface LinkData {
 
 export default function AddLinkForm() {
   const theme = useTheme();
-  
+
   const {
     register,
     handleSubmit,

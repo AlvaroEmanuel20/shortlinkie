@@ -9,6 +9,12 @@ import { Stack } from '../components/Stack';
 import { Label } from '../components/Label';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
+import { useForm } from 'react-hook-form';
+import useMutation from '../hooks/useMutation';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { UserId } from '../lib/interfaces';
+import { InputError } from '../components/InputError';
+import { editPasswordSchema, editUserSchema } from '../lib/validations/users';
 
 const ProfilePage = styled.main`
   width: 600px;
@@ -16,13 +22,53 @@ const ProfilePage = styled.main`
 
   h1 {
     font-size: ${(props) => props.theme.fontSize.lg};
-    margin-bottom: 30px;
   }
 `;
+
+interface FormProfile {
+  name?: string;
+  email?: string;
+}
+
+interface FormPassword {
+  password?: string;
+  confirmPassword?: string;
+}
 
 export default function Profile() {
   const theme = useTheme();
   const auth = useContext(AuthContext);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormProfile>({
+    defaultValues: {
+      name: auth?.user?.name,
+      email: auth?.user?.email,
+    },
+    resolver: yupResolver<FormProfile>(editUserSchema),
+  });
+
+  const { mutate, isLoading } = useMutation('/api/users', 'patch');
+  const onSubmit = handleSubmit((data) => mutate<FormProfile, UserId>(data));
+
+  const {
+    register: registerPassword,
+    handleSubmit: handleSubmitPassword,
+    formState: { errors: errorsPassword },
+  } = useForm<FormPassword>({
+    resolver: yupResolver<FormPassword>(editPasswordSchema),
+  });
+
+  const { mutate: mutatePassword, isLoading: isLoadingPassword } = useMutation(
+    '/api/users',
+    'patch'
+  );
+  const onSubmitPassword = handleSubmitPassword((data) =>
+    mutatePassword<FormPassword, UserId>(data)
+  );
 
   if (!auth || !auth.user) {
     return (
@@ -34,7 +80,7 @@ export default function Profile() {
 
   return (
     <ProfilePage>
-      <h1>Configurações de perfil</h1>
+      <h1 style={{ marginBottom: '20px' }}>Configurações de perfil</h1>
 
       <HStack $spacing={15}>
         <Avatar $bgImg={auth.user.avatarUrl || People} />
@@ -45,29 +91,97 @@ export default function Profile() {
         </Stack>
       </HStack>
 
-      <form style={{ marginTop: '20px' }}>
+      <form onSubmit={onSubmit} style={{ marginTop: '20px' }}>
         <Stack $spacing={20}>
           <Stack $spacing={5}>
-            <Label>Nome</Label>
-            <Input type="text" placeholder={auth.user.name} />
+            <Label htmlFor="name">Nome</Label>
+
+            <Input
+              type="text"
+              id="name"
+              placeholder={auth.user.name}
+              {...register('name')}
+            />
+
+            {errors.name && <InputError>{errors.name.message}</InputError>}
           </Stack>
 
           <Stack $spacing={5}>
-            <Label>Email</Label>
-            <Input type="email" placeholder={auth.user.email} />
+            <Label htmlFor="email">Email</Label>
+
+            <Input
+              type="email"
+              id="email"
+              placeholder={auth.user.email}
+              {...register('email')}
+            />
+
+            {errors.email && <InputError>{errors.email.message}</InputError>}
+          </Stack>
+
+          <Button type="submit">
+            {isLoading ? (
+              <Loader
+                $width="20px"
+                $height="20px"
+                $borderWidth="3px"
+                color={theme.colors.white}
+              />
+            ) : (
+              'Atualizar'
+            )}
+          </Button>
+        </Stack>
+      </form>
+
+      <h1 style={{ marginTop: '30px', marginBottom: '20px' }}>
+        Atualizar senha
+      </h1>
+
+      <form onSubmit={onSubmitPassword}>
+        <Stack $spacing={20}>
+          <Stack $spacing={5}>
+            <Label htmlFor="password">Senha</Label>
+
+            <Input
+              type="password"
+              id="password"
+              placeholder="Sua nova senha"
+              {...registerPassword('password')}
+            />
+
+            {errorsPassword.password && (
+              <InputError>{errorsPassword.password.message}</InputError>
+            )}
           </Stack>
 
           <Stack $spacing={5}>
-            <Label>Senha</Label>
-            <Input type="password" placeholder="Sua nova senha" />
+            <Label htmlFor="confirmPassword">Confirme sua senha</Label>
+
+            <Input
+              type="password"
+              id="confirmPassword"
+              placeholder="Confirme sua nova senha"
+              {...registerPassword('confirmPassword')}
+            />
+
+            {errorsPassword.confirmPassword && (
+              <InputError>{errorsPassword.confirmPassword.message}</InputError>
+            )}
           </Stack>
 
-          <Stack $spacing={5}>
-            <Label>Confirme sua senha</Label>
-            <Input type="password" placeholder="Confirme sua nova senha" />
-          </Stack>
-
-          <Button type="submit">Atualizar</Button>
+          <Button type="submit">
+            {isLoadingPassword ? (
+              <Loader
+                $width="20px"
+                $height="20px"
+                $borderWidth="3px"
+                color={theme.colors.white}
+              />
+            ) : (
+              'Atualizar'
+            )}
+          </Button>
         </Stack>
       </form>
     </ProfilePage>
