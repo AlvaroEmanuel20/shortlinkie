@@ -10,9 +10,11 @@ import { signUpSchema } from '../lib/validations/auth';
 import { useForm } from 'react-hook-form';
 import { InputError } from '../components/InputError';
 import { Loader } from '../components/Loader';
+import { useTheme } from 'styled-components';
 
 export default function SignUp() {
   const { signUp, loadingSignUp } = useAuth();
+  const theme = useTheme();
 
   const {
     register,
@@ -74,7 +76,12 @@ export default function SignUp() {
 
             <Button type="submit">
               {loadingSignUp ? (
-                <Loader $width="20px" $height="20px" $borderWidth="3px" />
+                <Loader
+                  $width="20px"
+                  $height="20px"
+                  $borderWidth="3px"
+                  color={theme.colors.white}
+                />
               ) : (
                 'Cadastrar'
               )}

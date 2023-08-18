@@ -4,29 +4,52 @@ import { Input } from '../../components/Input';
 import { Label } from '../../components/Label';
 import { Stack } from '../../components/Stack';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { addLinkSchema } from '../../lib/validations/link';
+import { editLinkSchema } from '../../lib/validations/link';
 import { InputError } from '../../components/InputError';
 import useMutation from '../../hooks/useMutation';
 import { ShortId } from '../../lib/interfaces';
 import { Loader } from '../../components/Loader';
 import { useTheme } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
-interface LinkData {
+interface EditLinkData {
+  title?: string;
+  originalUrl?: string;
+  shortId?: string;
+}
+
+interface EditLinkForm {
+  shortId: string;
   title: string;
   originalUrl: string;
 }
 
-export default function AddLinkForm() {
+export default function EditLinkForm({
+  shortId,
+  title,
+  originalUrl,
+}: EditLinkForm) {
   const theme = useTheme();
-  
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LinkData>({ resolver: yupResolver(addLinkSchema) });
+  } = useForm<EditLinkData>({
+    defaultValues: {
+      shortId,
+      title,
+      originalUrl,
+    },
+    resolver: yupResolver<EditLinkData>(editLinkSchema),
+  });
 
-  const { mutate, isLoading } = useMutation('/', 'post');
-  const onSubmit = handleSubmit((data) => mutate<LinkData, ShortId>(data));
+  const { mutate, isLoading } = useMutation(`/${shortId}`, 'patch');
+  const onSubmit = handleSubmit((data) => {
+    mutate<EditLinkData, ShortId>(data);
+    navigate('/');
+  });
 
   return (
     <form onSubmit={onSubmit}>
@@ -38,7 +61,7 @@ export default function AddLinkForm() {
             <Input
               type="text"
               id="title"
-              placeholder="Título do link"
+              placeholder={title}
               {...register('title')}
             />
 
@@ -51,12 +74,27 @@ export default function AddLinkForm() {
             <Input
               type="url"
               id="originalUrl"
-              placeholder="Link a ser encurtado"
+              placeholder={originalUrl}
               {...register('originalUrl')}
             />
 
             {errors.originalUrl && (
               <InputError>{errors.originalUrl.message}</InputError>
+            )}
+          </Stack>
+
+          <Stack $spacing={5}>
+            <Label htmlFor="shortId">Texto do link</Label>
+
+            <Input
+              type="text"
+              id="shortId"
+              placeholder={shortId}
+              {...register('shortId')}
+            />
+
+            {errors.shortId && (
+              <InputError>{errors.shortId.message}</InputError>
             )}
           </Stack>
         </Stack>

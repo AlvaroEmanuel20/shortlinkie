@@ -21,7 +21,7 @@ export const Loader = styled.span<Loader>`
   width: ${(props) => props.$width || '48px'};
   height: ${(props) => props.$height || '48px'};
   border: ${(props) => props.$borderWidth || '5px'} solid
-    ${(props) => props.$color || '#fff'};
+    ${(props) => props.color};
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;

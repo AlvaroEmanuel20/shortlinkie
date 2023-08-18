@@ -1,10 +1,12 @@
-import { styled } from 'styled-components';
+import { styled, useTheme } from 'styled-components';
 import { Stack } from '../../components/Stack';
 import { HStack } from '../../components/HStack';
 import { Button } from '../../components/Button';
 import EditIcon from '../../assets/EditIcon';
 import TrashIcon from '../../assets/TrashIcon';
 import { Link } from 'react-router-dom';
+import useMutation from '../../hooks/useMutation';
+import { Loader } from '../../components/Loader';
 
 interface LinkCard {
   name: string;
@@ -31,6 +33,9 @@ const LinkCardStyle = styled.div`
 `;
 
 export default function LinkCard({ name, link, shortId }: LinkCard) {
+  const { mutate, isLoading } = useMutation(`/${shortId}`, 'delete');
+  const theme = useTheme();
+
   return (
     <LinkCardStyle>
       <Stack $spacing={4}>
@@ -46,8 +51,17 @@ export default function LinkCard({ name, link, shortId }: LinkCard) {
             <EditIcon />
           </Link>
 
-          <button>
-            <TrashIcon />
+          <button onClick={mutate}>
+            {isLoading ? (
+              <Loader
+                color={theme.colors.orange1}
+                $width="20px"
+                $height="20px"
+                $borderWidth="3px"
+              />
+            ) : (
+              <TrashIcon />
+            )}
           </button>
         </HStack>
       </HStack>

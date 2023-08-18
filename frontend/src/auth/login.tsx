@@ -10,9 +10,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { loginSchema } from '../lib/validations/auth';
 import { InputError } from '../components/InputError';
 import { Loader } from '../components/Loader';
+import { useTheme } from 'styled-components';
 
 export default function Login() {
   const { login, loadingLogin } = useAuth();
+  const theme = useTheme();
 
   const {
     register,
@@ -61,7 +63,12 @@ export default function Login() {
 
             <Button type="submit">
               {loadingLogin ? (
-                <Loader $width="20px" $height="20px" $borderWidth="3px" />
+                <Loader
+                  $width="20px"
+                  $height="20px"
+                  $borderWidth="3px"
+                  color={theme.colors.white}
+                />
               ) : (
                 'Entrar'
               )}

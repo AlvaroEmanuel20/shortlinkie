@@ -1,9 +1,11 @@
-import { styled } from 'styled-components';
+import { styled, useTheme } from 'styled-components';
 import Logo from '../../assets/Logo';
 import { Stack } from '../../components/Stack';
 import HomeIcon from '../../assets/HomeIcon';
 import LogoutIcon from '../../assets/LogoutIcon';
 import { Link } from 'react-router-dom';
+import useAuth from '../../auth/hooks/useAuth';
+import { Loader } from '../../components/Loader';
 
 const SidebarStyle = styled.aside`
   position: fixed;
@@ -20,6 +22,9 @@ const SidebarStyle = styled.aside`
 `;
 
 export default function Sidebar() {
+  const { logout, loadingLogout } = useAuth();
+  const theme = useTheme();
+
   return (
     <SidebarStyle>
       <Stack $spacing={35} $items="center">
@@ -30,8 +35,17 @@ export default function Sidebar() {
         </Link>
       </Stack>
 
-      <button>
-        <LogoutIcon />
+      <button onClick={logout}>
+        {loadingLogout ? (
+          <Loader
+            color={theme.colors.orange1}
+            $width="20px"
+            $height="20px"
+            $borderWidth="3px"
+          />
+        ) : (
+          <LogoutIcon />
+        )}
       </button>
     </SidebarStyle>
   );
