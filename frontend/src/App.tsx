@@ -5,6 +5,7 @@ import SignUp from './auth/signup';
 import Home from './dashboard/Home';
 import LinkPage from './dashboard/LinkPage';
 import { AuthProvider } from './auth/context/AuthContext';
+import Profile from './dashboard/Profile';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
       {
         path: 'link/:shortId',
         element: <LinkPage />,
+      },
+      {
+        path: 'perfil',
+        element: <Profile />,
       },
     ],
   },

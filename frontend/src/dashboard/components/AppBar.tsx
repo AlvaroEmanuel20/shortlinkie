@@ -4,15 +4,16 @@ import { Input } from '../../components/Input';
 import { Avatar } from './Avatar';
 import People from '../../assets/people.jpg';
 import Skeleton from './Skeleton';
-import useQuery from '../../hooks/useQuery';
-import { User } from '../../lib/interfaces';
+import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../../auth/context/AuthContext';
 
 const AppbarStyle = styled.header`
   margin-bottom: 30px;
 `;
 
 export default function Appbar() {
-  const { data: user, isLoading: isloadingUser } = useQuery<User>('/api/users');
+  const auth = useContext(AuthContext);
 
   return (
     <AppbarStyle>
@@ -24,12 +25,16 @@ export default function Appbar() {
         />
 
         <Skeleton
-          isLoading={isloadingUser}
+          isLoading={!auth || !auth.user}
           $width="40px"
           $height="40px"
           $radius="100%"
         >
-          <Avatar $bgImg={(user && user.avatarUrl) || People} />
+          <Link to="/perfil">
+            {auth && auth.user && (
+              <Avatar $bgImg={auth.user.avatarUrl || People} />
+            )}
+          </Link>
         </Skeleton>
       </HStack>
     </AppbarStyle>
