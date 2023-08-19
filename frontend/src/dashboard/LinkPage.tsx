@@ -13,6 +13,7 @@ import { format } from 'our-dates';
 import useMutation from '../hooks/useMutation';
 import { Loader } from '../components/Loader';
 import EditLinkForm from './components/EditLinkForm';
+import useCopy from './hooks/useCopy';
 
 const LinkPageGrid = styled.main`
   display: grid;
@@ -54,6 +55,7 @@ export default function LinkPage() {
   const { shortId } = useParams();
   const navigate = useNavigate();
   const theme = useTheme();
+  const { inputRef, copyFunc } = useCopy();
 
   const { mutate: mutateDelete, isLoading: isLoadingDelete } = useMutation(
     `/${shortId}`,
@@ -61,7 +63,7 @@ export default function LinkPage() {
   );
 
   const { data: shortUrl, isLoading: isLoadingShortUrl } = useQuery<ShortUrl>(
-    `/details/${shortId}`
+    `/details/${shortId}?sources=true`
   );
 
   return (
@@ -123,7 +125,16 @@ export default function LinkPage() {
             </Stack>
 
             <BtnGrid>
-              <Button>Copiar</Button>
+              <input
+                ref={inputRef}
+                hidden
+                type="text"
+                defaultValue={
+                  shortUrl && `http://encurtando.com/${shortUrl.shortId}`
+                }
+              />
+
+              <Button onClick={copyFunc}>Copiar</Button>
               <Button>Gerar QR Code</Button>
             </BtnGrid>
           </Stack>
@@ -148,14 +159,14 @@ export default function LinkPage() {
 
       <Skeleton isLoading={isLoadingShortUrl}>
         <Card className="item3" $p="0">
-          <Stack $spacing={15} style={{ height: '100%' }}>
+          <Stack $spacing={20} style={{ height: '100%' }}>
             <h2
               style={{
                 fontSize: theme.fontSize.md,
                 padding: '15px 15px 0 15px',
               }}
             >
-              Estatística de cliques:
+              Origem dos cliques:
             </h2>
 
             <div
@@ -197,6 +208,7 @@ export default function LinkPage() {
                     enabled: false,
                   },
                   xaxis: {
+                    categories: shortUrl?.Source.map((source) => source.name),
                     labels: {
                       show: false,
                     },
@@ -225,16 +237,10 @@ export default function LinkPage() {
                 }}
                 series={[
                   {
-                    name: 'series1',
-                    data: [31, 40, 28, 51, 42, 109, 100],
-                  },
-                  {
-                    name: 'series2',
-                    data: [11, 32, 45, 32, 34, 52, 41],
-                  },
-                  {
-                    name: 'series3',
-                    data: [3, 50, 42, 22, 60, 120, 33],
+                    name: 'Cliques',
+                    data: shortUrl
+                      ? shortUrl.Source.map((source) => source.clicks)
+                      : [0],
                   },
                 ]}
               />

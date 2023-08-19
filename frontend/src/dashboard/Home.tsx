@@ -24,11 +24,22 @@ const HomeGrid = styled.main`
 export default function Home() {
   const theme = useTheme();
 
-  const { data: totals, isLoading: isLoadingTotals } =
-    useQuery<Totals>('/all/totals');
+  const {
+    data: totals,
+    isLoading: isLoadingTotals,
+    refetch: refetchTotals,
+  } = useQuery<Totals>('/all/totals');
 
-  const { data: shortUrls, isLoading: isLoadingShortUrls } =
-    useQuery<ShortUrl[]>('/all');
+  const {
+    data: shortUrls,
+    isLoading: isLoadingShortUrls,
+    refetch: refetchShortUrls,
+  } = useQuery<ShortUrl[]>('/all');
+
+  const refetchs = () => {
+    refetchTotals();
+    refetchShortUrls();
+  };
 
   return (
     <HomeGrid>
@@ -59,7 +70,7 @@ export default function Home() {
       <Card>
         <Stack $spacing={20}>
           <h2 style={{ fontSize: theme.fontSize.md }}>Adicionar Link</h2>
-          <AddLinkForm />
+          <AddLinkForm refetchs={refetchs} />
         </Stack>
       </Card>
 
@@ -107,6 +118,7 @@ export default function Home() {
                   name={shortUrl.title}
                   link={`http://localhost:3002/${shortUrl.shortId}`}
                   shortId={shortUrl.shortId}
+                  refetchs={refetchs}
                 />
               ))}
           </Stack>

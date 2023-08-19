@@ -66,6 +66,7 @@ export default function Profile() {
     '/api/users',
     'patch'
   );
+
   const onSubmitPassword = handleSubmitPassword((data) =>
     mutatePassword<FormPassword, UserId>(data)
   );

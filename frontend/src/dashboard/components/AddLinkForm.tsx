@@ -16,7 +16,7 @@ interface LinkData {
   originalUrl: string;
 }
 
-export default function AddLinkForm() {
+export default function AddLinkForm({ refetchs }: { refetchs: () => void }) {
   const theme = useTheme();
 
   const {
@@ -26,7 +26,12 @@ export default function AddLinkForm() {
   } = useForm<LinkData>({ resolver: yupResolver(addLinkSchema) });
 
   const { mutate, isLoading } = useMutation('/', 'post');
-  const onSubmit = handleSubmit((data) => mutate<LinkData, ShortId>(data));
+  const onSubmit = handleSubmit(async (data) => {
+    const res = await mutate<LinkData, ShortId>(data);
+    if (res && res.shortId) {
+      refetchs();
+    }
+  });
 
   return (
     <form onSubmit={onSubmit}>
