@@ -9,6 +9,8 @@ import useMutation from '../../hooks/useMutation';
 import { Loader } from '../../components/Loader';
 import useCopy from '../hooks/useCopy';
 import { ShortId } from '../../lib/interfaces';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 interface LinkCard {
   name: string;
@@ -36,9 +38,15 @@ const LinkCardStyle = styled.div`
 `;
 
 export default function LinkCard({ name, link, shortId, refetchs }: LinkCard) {
-  const { mutate, isLoading } = useMutation(`/${shortId}`, 'delete');
+  const { mutate, isLoading, error } = useMutation(`/${shortId}`, 'delete');
   const theme = useTheme();
   const { inputRef, copyFunc } = useCopy();
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Erro ao excluir link');
+    }
+  }, [error]);
 
   return (
     <LinkCardStyle>

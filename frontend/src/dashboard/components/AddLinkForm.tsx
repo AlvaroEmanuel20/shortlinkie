@@ -10,6 +10,8 @@ import useMutation from '../../hooks/useMutation';
 import { ShortId } from '../../lib/interfaces';
 import { Loader } from '../../components/Loader';
 import { useTheme } from 'styled-components';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 interface LinkData {
   title: string;
@@ -25,13 +27,19 @@ export default function AddLinkForm({ refetchs }: { refetchs: () => void }) {
     formState: { errors },
   } = useForm<LinkData>({ resolver: yupResolver(addLinkSchema) });
 
-  const { mutate, isLoading } = useMutation('/', 'post');
+  const { mutate, isLoading, error } = useMutation('/', 'post');
   const onSubmit = handleSubmit(async (data) => {
     const res = await mutate<LinkData, ShortId>(data);
     if (res && res.shortId) {
       refetchs();
     }
   });
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Erro ao cadastrar link');
+    }
+  }, [error]);
 
   return (
     <form onSubmit={onSubmit}>
@@ -75,7 +83,7 @@ export default function AddLinkForm({ refetchs }: { refetchs: () => void }) {
               color={theme.colors.white}
             />
           ) : (
-            'Atualizar'
+            'Adicionar'
           )}
         </Button>
       </Stack>

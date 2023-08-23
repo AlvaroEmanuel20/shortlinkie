@@ -14,6 +14,8 @@ import useMutation from '../hooks/useMutation';
 import { Loader } from '../components/Loader';
 import EditLinkForm from './components/EditLinkForm';
 import useCopy from './hooks/useCopy';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 const LinkPageGrid = styled.main`
   display: grid;
@@ -57,14 +59,28 @@ export default function LinkPage() {
   const theme = useTheme();
   const { inputRef, copyFunc } = useCopy();
 
-  const { mutate: mutateDelete, isLoading: isLoadingDelete } = useMutation(
-    `/${shortId}`,
-    'delete'
-  );
+  const {
+    mutate: mutateDelete,
+    isLoading: isLoadingDelete,
+    error: errorDelete,
+  } = useMutation(`/${shortId}`, 'delete');
 
-  const { data: shortUrl, isLoading: isLoadingShortUrl } = useQuery<ShortUrl>(
-    `/details/${shortId}?sources=true`
-  );
+  const {
+    data: shortUrl,
+    isLoading: isLoadingShortUrl,
+    error: errorShortUrl,
+    refetch,
+  } = useQuery<ShortUrl>(`/details/${shortId}?sources=true`);
+
+  useEffect(() => {
+    if (errorShortUrl) {
+      toast.error('Erro ao carregar detalhes do link');
+    }
+
+    if (errorDelete) {
+      toast.error('Erro ao excluir link');
+    }
+  }, [errorShortUrl, errorDelete]);
 
   return (
     <LinkPageGrid>
@@ -148,6 +164,7 @@ export default function LinkPage() {
 
             {shortId && shortUrl && (
               <EditLinkForm
+                refetch={refetch}
                 shortId={shortId}
                 title={shortUrl.title}
                 originalUrl={shortUrl.originalUrl}

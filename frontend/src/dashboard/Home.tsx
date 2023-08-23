@@ -9,6 +9,8 @@ import { ShortUrl, Totals } from '../lib/interfaces';
 import { EmptyLinkCard } from './components/EmptyLinkCard';
 import AddLinkForm from './components/AddLinkForm';
 import AddQrForm from './components/AddQrForm';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 const HomeGrid = styled.main`
   display: grid;
@@ -27,12 +29,14 @@ export default function Home() {
   const {
     data: totals,
     isLoading: isLoadingTotals,
+    error: errorTotals,
     refetch: refetchTotals,
   } = useQuery<Totals>('/all/totals');
 
   const {
     data: shortUrls,
     isLoading: isLoadingShortUrls,
+    error: errorShortUrls,
     refetch: refetchShortUrls,
   } = useQuery<ShortUrl[]>('/all');
 
@@ -40,6 +44,16 @@ export default function Home() {
     refetchTotals();
     refetchShortUrls();
   };
+
+  useEffect(() => {
+    if (errorTotals) {
+      toast.error('Erro ao carregar os totais');
+    }
+
+    if (errorShortUrls) {
+      toast.error('Erro ao carregar os seus links');
+    }
+  }, [errorTotals, errorShortUrls]);
 
   return (
     <HomeGrid>

@@ -11,6 +11,8 @@ import { ShortId } from '../../lib/interfaces';
 import { Loader } from '../../components/Loader';
 import { useTheme } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 interface EditLinkData {
   title?: string;
@@ -22,12 +24,14 @@ interface EditLinkForm {
   shortId: string;
   title: string;
   originalUrl: string;
+  refetch: () => void;
 }
 
 export default function EditLinkForm({
   shortId,
   title,
   originalUrl,
+  refetch,
 }: EditLinkForm) {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -45,11 +49,21 @@ export default function EditLinkForm({
     resolver: yupResolver<EditLinkData>(editLinkSchema),
   });
 
-  const { mutate, isLoading } = useMutation(`/${shortId}`, 'patch');
-  const onSubmit = handleSubmit((data) => {
-    mutate<EditLinkData, ShortId>(data);
+  const { mutate, isLoading, error } = useMutation(`/${shortId}`, 'patch');
+  const onSubmit = handleSubmit(async (data) => {
+    const res = await mutate<EditLinkData, ShortId>(data);
+    if (res && res.shortId) {
+      refetch();
+    }
+
     navigate('/');
   });
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Erro ao atualizar link');
+    }
+  }, [error]);
 
   return (
     <form onSubmit={onSubmit}>

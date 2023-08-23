@@ -1,6 +1,6 @@
 import { styled, useTheme } from 'styled-components';
 import { Loader } from '../components/Loader';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { AuthContext } from '../auth/context/AuthContext';
 import { HStack } from '../components/HStack';
 import { Avatar } from './components/Avatar';
@@ -15,6 +15,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { UserId } from '../lib/interfaces';
 import { InputError } from '../components/InputError';
 import { editPasswordSchema, editUserSchema } from '../lib/validations/users';
+import { toast } from 'react-toastify';
 
 const ProfilePage = styled.main`
   width: 600px;
@@ -51,7 +52,7 @@ export default function Profile() {
     resolver: yupResolver<FormProfile>(editUserSchema),
   });
 
-  const { mutate, isLoading } = useMutation('/api/users', 'patch');
+  const { mutate, isLoading, error } = useMutation('/api/users', 'patch');
   const onSubmit = handleSubmit((data) => mutate<FormProfile, UserId>(data));
 
   const {
@@ -62,14 +63,25 @@ export default function Profile() {
     resolver: yupResolver<FormPassword>(editPasswordSchema),
   });
 
-  const { mutate: mutatePassword, isLoading: isLoadingPassword } = useMutation(
-    '/api/users',
-    'patch'
-  );
+  const {
+    mutate: mutatePassword,
+    isLoading: isLoadingPassword,
+    error: errorPassword,
+  } = useMutation('/api/users', 'patch');
 
   const onSubmitPassword = handleSubmitPassword((data) =>
     mutatePassword<FormPassword, UserId>(data)
   );
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Erro ao atualizar perfil');
+    }
+
+    if (errorPassword) {
+      toast.error('Erro ao atualizar senha');
+    }
+  }, [error, errorPassword]);
 
   if (!auth || !auth.user) {
     return (
