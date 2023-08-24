@@ -5,4 +5,8 @@ export const AuthLayout = styled.div`
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+
+  @media (max-width: 400px) {
+    padding: 0 15px;
+  }
 `;

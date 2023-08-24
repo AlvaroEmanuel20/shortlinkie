@@ -10,6 +10,10 @@ const AuthCardStyle = styled.div`
   padding: 30px;
   min-width: 340px;
 
+  @media (max-width: 400px) {
+    min-width: 100%;
+  }
+
   h1 {
     font-size: ${(props) => props.theme.fontSize.lg};
   }
