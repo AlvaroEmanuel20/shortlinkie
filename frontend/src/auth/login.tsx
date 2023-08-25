@@ -11,10 +11,13 @@ import { loginSchema } from '../lib/validations/auth';
 import { InputError } from '../components/InputError';
 import { Loader } from '../components/Loader';
 import { useTheme } from 'styled-components';
+import { useState } from 'react';
+import PasswordInputWrapper from '../components/PasswordInput';
 
 export default function Login() {
   const { login, loadingLogin } = useAuth();
   const theme = useTheme();
+  const [showPass, setShowPass] = useState(false);
 
   const {
     register,
@@ -48,12 +51,15 @@ export default function Login() {
               <Stack $spacing={5}>
                 <Label htmlFor="password">Senha</Label>
 
-                <Input
-                  type="password"
-                  id="password"
-                  placeholder="Sua senha"
-                  {...register('password')}
-                />
+                <PasswordInputWrapper show={showPass} setShow={setShowPass}>
+                  <Input
+                    $isPassword
+                    type={showPass ? 'text' : 'password'}
+                    id="password"
+                    placeholder="Sua senha"
+                    {...register('password')}
+                  />
+                </PasswordInputWrapper>
 
                 {errors.password && (
                   <InputError>{errors.password.message}</InputError>

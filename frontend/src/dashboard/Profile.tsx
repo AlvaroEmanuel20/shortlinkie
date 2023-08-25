@@ -1,6 +1,6 @@
 import { styled, useTheme } from 'styled-components';
 import { Loader } from '../components/Loader';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../auth/context/AuthContext';
 import { HStack } from '../components/HStack';
 import { Avatar } from './components/Avatar';
@@ -16,6 +16,7 @@ import { UserId } from '../lib/interfaces';
 import { InputError } from '../components/InputError';
 import { editPasswordSchema, editUserSchema } from '../lib/validations/users';
 import { toast } from 'react-toastify';
+import PasswordInputWrapper from '../components/PasswordInput';
 
 const ProfilePage = styled.main`
   width: 600px;
@@ -43,6 +44,7 @@ interface FormPassword {
 export default function Profile() {
   const theme = useTheme();
   const auth = useContext(AuthContext);
+  const [showPass, setShowPass] = useState(false);
 
   const {
     register,
@@ -160,12 +162,15 @@ export default function Profile() {
           <Stack $spacing={5}>
             <Label htmlFor="password">Senha</Label>
 
-            <Input
-              type="password"
-              id="password"
-              placeholder="Sua nova senha"
-              {...registerPassword('password')}
-            />
+            <PasswordInputWrapper show={showPass} setShow={setShowPass}>
+              <Input
+                $isPassword
+                type={showPass ? 'text' : 'password'}
+                id="password"
+                placeholder="Sua nova senha"
+                {...registerPassword('password')}
+              />
+            </PasswordInputWrapper>
 
             {errorsPassword.password && (
               <InputError>{errorsPassword.password.message}</InputError>

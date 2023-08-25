@@ -11,9 +11,12 @@ import { useForm } from 'react-hook-form';
 import { InputError } from '../components/InputError';
 import { Loader } from '../components/Loader';
 import { useTheme } from 'styled-components';
+import { useState } from 'react';
+import PasswordInputWrapper from '../components/PasswordInput';
 
 export default function SignUp() {
   const { signUp, loadingSignUp } = useAuth();
+  const [showPass, setShowPass] = useState(false);
   const theme = useTheme();
 
   const {
@@ -61,12 +64,15 @@ export default function SignUp() {
               <Stack $spacing={5}>
                 <Label htmlFor="password">Senha</Label>
 
-                <Input
-                  type="password"
-                  id="password"
-                  placeholder="Sua senha"
-                  {...register('password')}
-                />
+                <PasswordInputWrapper show={showPass} setShow={setShowPass}>
+                  <Input
+                    $isPassword
+                    type={showPass ? 'text' : 'password'}
+                    id="password"
+                    placeholder="Sua senha"
+                    {...register('password')}
+                  />
+                </PasswordInputWrapper>
 
                 {errors.password && (
                   <InputError>{errors.password.message}</InputError>
