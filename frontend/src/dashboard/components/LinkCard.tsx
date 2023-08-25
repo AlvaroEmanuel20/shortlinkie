@@ -11,6 +11,7 @@ import useCopy from '../hooks/useCopy';
 import { ShortId } from '../../lib/interfaces';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
+import Copy from '../../assets/Copy';
 
 interface LinkCard {
   name: string;
@@ -35,6 +36,28 @@ const LinkCardStyle = styled.div`
       text-decoration: underline;
     }
   }
+
+  @media (max-width: 550px) {
+    .copy-btn {
+      display: none;
+    }
+  }
+
+  @media (min-width: 550px) {
+    .copy-icon {
+      display: none;
+    }
+  }
+
+  @media (max-width: 430px) {
+    h3 {
+      font-size: ${props => props.theme.fontSize.sm};
+    }
+
+    & a {
+      font-size: 12px;
+    }
+  }
 `;
 
 export default function LinkCard({ name, link, shortId, refetchs }: LinkCard) {
@@ -57,7 +80,11 @@ export default function LinkCard({ name, link, shortId, refetchs }: LinkCard) {
       </Stack>
 
       <HStack $spacing={15}>
-        <Button onClick={copyFunc}>Copiar</Button>
+        <button onClick={copyFunc} className='copy-icon'>
+          <Copy />
+        </button>
+
+        <Button className='copy-btn' onClick={copyFunc}>Copiar</Button>
 
         <HStack $spacing={10}>
           <Link to={`/link/${shortId}`}>

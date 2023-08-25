@@ -19,6 +19,10 @@ const SidebarStyle = styled.aside`
   justify-content: space-between;
   align-items: center;
   padding: 30px 20px;
+
+  @media (max-width: 655px) {
+    display: none;
+  }
 `;
 
 export default function Sidebar() {

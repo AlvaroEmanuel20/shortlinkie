@@ -24,6 +24,10 @@ const ProfilePage = styled.main`
   h1 {
     font-size: ${(props) => props.theme.fontSize.lg};
   }
+
+  @media (max-width: 750px) {
+    width: 100%;
+  }
 `;
 
 interface FormProfile {

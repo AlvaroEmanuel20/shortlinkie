@@ -9,6 +9,10 @@ const DashboardStyle = styled.div`
   background-color: ${(props) => props.theme.colors.gray};
   padding: 30px 30px 30px calc(80px + 30px);
   min-height: 100vh;
+
+  @media (max-width: 655px) {
+    padding: 30px 15px;
+  }
 `;
 
 export default function Dashboard() {

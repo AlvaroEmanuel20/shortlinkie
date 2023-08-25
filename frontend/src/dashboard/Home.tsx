@@ -21,6 +21,55 @@ const HomeGrid = styled.main`
   .item5 {
     grid-area: 1 / 2 / span 4 / span 2;
   }
+
+  @media (max-width: 1164px) {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 104px 320px 600px;
+
+    .item5 {
+      grid-area: 4 / 1 / 3 / span 2;
+    }
+  }
+
+  @media (max-width: 730px) {
+    grid-template-rows: 104px 320px 250px 600px;
+
+    .item3 {
+      grid-area: 2 / 1 / 2 / span 2;
+    }
+
+    .item4 {
+      grid-area: 3 / 1 / 3 / span 2;
+    }
+
+    .item5 {
+      grid-area: 4 / 1 / 4 / span 2;
+    }
+  }
+
+  @media (max-width: 480px) {
+    grid-template-rows: 104px 104px 320px 250px 600px;
+
+    .item1 {
+      grid-area: 1 / 1 / 1 / span 2;
+    }
+
+    .item2 {
+      grid-area: 2 / 1 / 2 / span 2;
+    }
+
+    .item3 {
+      grid-area: 3 / 1 / 3 / span 2;
+    }
+
+    .item4 {
+      grid-area: 4 / 1 / 4 / span 2;
+    }
+
+    .item5 {
+      grid-area: 5 / 1 / 5 / span 2;
+    }
+  }
 `;
 
 export default function Home() {
@@ -58,7 +107,7 @@ export default function Home() {
   return (
     <HomeGrid>
       <Skeleton isLoading={isLoadingTotals}>
-        <Card>
+        <Card className="item1">
           <Stack $spacing={8}>
             <Text>Cliques totais:</Text>
 
@@ -70,7 +119,7 @@ export default function Home() {
       </Skeleton>
 
       <Skeleton isLoading={isLoadingTotals}>
-        <Card>
+        <Card className="item2">
           <Stack $spacing={8}>
             <Text>URLs totais:</Text>
 
@@ -81,14 +130,14 @@ export default function Home() {
         </Card>
       </Skeleton>
 
-      <Card>
+      <Card className="item3">
         <Stack $spacing={20}>
           <h2 style={{ fontSize: theme.fontSize.md }}>Adicionar Link</h2>
           <AddLinkForm refetchs={refetchs} />
         </Stack>
       </Card>
 
-      <Card>
+      <Card className="item4">
         <Stack $spacing={20}>
           <h2 style={{ fontSize: theme.fontSize.md }}>Gerar QR Code</h2>
           <AddQrForm />

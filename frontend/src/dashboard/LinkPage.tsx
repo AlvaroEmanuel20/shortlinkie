@@ -27,6 +27,23 @@ const LinkPageGrid = styled.main`
     grid-area: 2 / 1 / span 1 / span 2;
   }
 
+  @media (max-width: 930px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: 300px 420px 445px;
+
+    .item2 {
+      grid-area: 2 / 1 / 2 / 1;
+    }
+
+    .item3 {
+      grid-area: 3 / 1 / 3 / 1;
+    }
+  }
+
+  @media (max-width: 450px) {
+    grid-template-rows: 340px 420px 400px;
+  }
+
   .flex {
     display: flex;
     gap: 5px;
@@ -51,6 +68,14 @@ const BtnGrid = styled.div`
   display: grid;
   gap: 10px;
   grid-template-columns: 184px 234px;
+
+  @media (max-width: 930px) {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 450px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export default function LinkPage() {
@@ -85,7 +110,7 @@ export default function LinkPage() {
   return (
     <LinkPageGrid>
       <Skeleton isLoading={isLoadingShortUrl}>
-        <Card>
+        <Card className='item1'>
           <Stack style={{ height: '100%' }} $justify="space-between">
             <Stack $spacing={30}>
               <HStack $spacing={20} $justify="space-between">
@@ -158,7 +183,7 @@ export default function LinkPage() {
       </Skeleton>
 
       <Skeleton isLoading={isLoadingShortUrl}>
-        <Card>
+        <Card className="item2">
           <Stack $spacing={30}>
             <h2 style={{ fontSize: theme.fontSize.md }}>Editar Link</h2>
 
