@@ -110,7 +110,7 @@ export default function LinkPage() {
   return (
     <LinkPageGrid>
       <Skeleton isLoading={isLoadingShortUrl}>
-        <Card className='item1'>
+        <Card className="item1">
           <Stack style={{ height: '100%' }} $justify="space-between">
             <Stack $spacing={30}>
               <HStack $spacing={20} $justify="space-between">

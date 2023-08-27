@@ -137,12 +137,14 @@ export default function Home() {
         </Stack>
       </Card>
 
-      <Card className="item4">
-        <Stack $spacing={20}>
-          <h2 style={{ fontSize: theme.fontSize.md }}>Gerar QR Code</h2>
-          <AddQrForm />
-        </Stack>
-      </Card>
+      <Skeleton isLoading={isLoadingShortUrls}>
+        <Card className="item4">
+          <Stack $spacing={20}>
+            <h2 style={{ fontSize: theme.fontSize.md }}>Gerar QR Code</h2>
+            {shortUrls && <AddQrForm shortUrls={shortUrls} />}
+          </Stack>
+        </Card>
+      </Skeleton>
 
       <Card className="item5">
         <Stack $spacing={15}>
