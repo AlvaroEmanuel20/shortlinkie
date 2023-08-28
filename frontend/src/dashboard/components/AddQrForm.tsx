@@ -8,10 +8,8 @@ import { Select } from '../../components/Select';
 import { ShortUrl } from '../../lib/interfaces';
 import { useForm } from 'react-hook-form';
 import { InputError } from '../../components/InputError';
-import { ReactNode, useRef, useState } from 'react';
-import * as htmlToImg from 'html-to-image';
-import { toast } from 'react-toastify';
 import { Loader } from '../../components/Loader';
+import useQrCode from '../hooks/useQrCode';
 
 interface AddQrForm {
   shortUrls: ShortUrl[];
@@ -19,9 +17,8 @@ interface AddQrForm {
 
 export default function AddQrForm({ shortUrls }: AddQrForm) {
   const theme = useTheme();
-  const [qrCode, setQrCode] = useState<ReactNode>();
-  const qrCodeRef = useRef<HTMLDivElement>(null);
-  const [downloading, setDownloading] = useState(false);
+  const { qrCode, setQrCode, downloadQrCode, downloading, qrCodeRef } =
+    useQrCode();
 
   const {
     register,
@@ -36,29 +33,6 @@ export default function AddQrForm({ shortUrls }: AddQrForm) {
       />
     );
   });
-
-  const downloadQrCode = () => {
-    setDownloading(true);
-
-    if (qrCodeRef.current === null) {
-      return;
-    }
-
-    htmlToImg
-      .toPng(qrCodeRef.current)
-      .then((dataUrl) => {
-        const link = document.createElement('a');
-        link.href = dataUrl;
-        link.download = 'qrcode_encurtando.png';
-        link.click();
-
-        setDownloading(false);
-      })
-      .catch(() => {
-        toast.error('Erro ao baixar QR Code');
-        setDownloading(false);
-      });
-  };
 
   return (
     <>

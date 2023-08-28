@@ -16,6 +16,8 @@ import EditLinkForm from './components/EditLinkForm';
 import useCopy from './hooks/useCopy';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
+import useQrCode from './hooks/useQrCode';
+import { QRCodeSVG } from 'qrcode.react';
 
 const LinkPageGrid = styled.main`
   display: grid;
@@ -83,6 +85,8 @@ export default function LinkPage() {
   const navigate = useNavigate();
   const theme = useTheme();
   const { inputRef, copyFunc } = useCopy();
+  const { qrCode, setQrCode, downloading, downloadQrCode, qrCodeRef } =
+    useQrCode();
 
   const {
     mutate: mutateDelete,
@@ -111,8 +115,91 @@ export default function LinkPage() {
     <LinkPageGrid>
       <Skeleton isLoading={isLoadingShortUrl}>
         <Card className="item1">
-          <Stack style={{ height: '100%' }} $justify="space-between">
-            <Stack $spacing={30}>
+          {!qrCode && (
+            <Stack style={{ height: '100%' }} $justify="space-between">
+              <Stack $spacing={30}>
+                <HStack $spacing={20} $justify="space-between">
+                  <h1 style={{ fontSize: theme.fontSize.md }}>
+                    {shortUrl && shortUrl.title}
+                  </h1>
+
+                  <button
+                    onClick={() => {
+                      mutateDelete();
+                      navigate('/');
+                    }}
+                  >
+                    {isLoadingDelete ? (
+                      <Loader
+                        color={theme.colors.orange1}
+                        $width="20px"
+                        $height="20px"
+                        $borderWidth="3px"
+                      />
+                    ) : (
+                      <TrashIcon />
+                    )}
+                  </button>
+                </HStack>
+
+                <Stack $spacing={12}>
+                  <p className="flex">
+                    <strong>Link original:</strong>{' '}
+                    <a href={shortUrl && shortUrl.originalUrl}>
+                      {shortUrl && shortUrl.originalUrl}
+                    </a>
+                  </p>
+                  <p className="flex">
+                    <strong>Link encurtado:</strong>{' '}
+                    <a
+                      href={
+                        shortUrl && `http://encurtando.com/${shortUrl.shortId}`
+                      }
+                    >
+                      {shortUrl && `http://encurtando.com/${shortUrl.shortId}`}
+                    </a>
+                  </p>
+                  <p>
+                    <strong>Data de criação:</strong>{' '}
+                    {shortUrl &&
+                      format(new Date(shortUrl.createdAt), 'dd/MM/yyyy')}
+                  </p>
+                  <p>
+                    <strong>Cliques totais:</strong>{' '}
+                    {shortUrl && shortUrl.clicks}
+                  </p>
+                </Stack>
+              </Stack>
+
+              <BtnGrid>
+                <input
+                  ref={inputRef}
+                  hidden
+                  type="text"
+                  defaultValue={
+                    shortUrl && `http://encurtando.com/${shortUrl.shortId}`
+                  }
+                />
+
+                <Button onClick={copyFunc}>Copiar</Button>
+                <Button
+                  onClick={() =>
+                    setQrCode(
+                      <QRCodeSVG
+                        value={`http://localhost:3002/${shortId}?src=qrcode`}
+                        fgColor={theme.colors.orange1}
+                      />
+                    )
+                  }
+                >
+                  Gerar QR Code
+                </Button>
+              </BtnGrid>
+            </Stack>
+          )}
+
+          {qrCode && (
+            <Stack $spacing={20}>
               <HStack $spacing={20} $justify="space-between">
                 <h1 style={{ fontSize: theme.fontSize.md }}>
                   {shortUrl && shortUrl.title}
@@ -137,48 +224,32 @@ export default function LinkPage() {
                 </button>
               </HStack>
 
-              <Stack $spacing={12}>
-                <p className="flex">
-                  <strong>Link original:</strong>{' '}
-                  <a href={shortUrl && shortUrl.originalUrl}>
-                    {shortUrl && shortUrl.originalUrl}
-                  </a>
-                </p>
-                <p className="flex">
-                  <strong>Link encurtado:</strong>{' '}
-                  <a
-                    href={
-                      shortUrl && `http://encurtando.com/${shortUrl.shortId}`
-                    }
-                  >
-                    {shortUrl && `http://encurtando.com/${shortUrl.shortId}`}
-                  </a>
-                </p>
-                <p>
-                  <strong>Data de criação:</strong>{' '}
-                  {shortUrl &&
-                    format(new Date(shortUrl.createdAt), 'dd/MM/yyyy')}
-                </p>
-                <p>
-                  <strong>Cliques totais:</strong> {shortUrl && shortUrl.clicks}
-                </p>
-              </Stack>
+              <HStack $spacing={15}>
+                <div style={{ display: 'flex' }} ref={qrCodeRef}>
+                  {qrCode}
+                </div>
+
+                <Stack $spacing={10} style={{ width: '100%' }}>
+                  <Button onClick={downloadQrCode}>
+                    {downloading ? (
+                      <Loader
+                        $width="20px"
+                        $height="20px"
+                        $borderWidth="3px"
+                        color={theme.colors.white}
+                      />
+                    ) : (
+                      'Download'
+                    )}
+                  </Button>
+
+                  <Button type="button" onClick={() => setQrCode(null)}>
+                    Voltar
+                  </Button>
+                </Stack>
+              </HStack>
             </Stack>
-
-            <BtnGrid>
-              <input
-                ref={inputRef}
-                hidden
-                type="text"
-                defaultValue={
-                  shortUrl && `http://encurtando.com/${shortUrl.shortId}`
-                }
-              />
-
-              <Button onClick={copyFunc}>Copiar</Button>
-              <Button>Gerar QR Code</Button>
-            </BtnGrid>
-          </Stack>
+          )}
         </Card>
       </Skeleton>
 
