@@ -1,9 +1,27 @@
+import { hash } from 'bcryptjs';
 import prisma from '../utils/prisma';
-import { UpdateUserData } from './users.interfaces';
+import { CreateUserData, UpdateUserData } from './users.interfaces';
+import ShortUrlsService from '../shortUrls/shortUrls.service';
 
 export default class UsersService {
   async getUser(userId: string) {
-    return await prisma.user.findUnique({ where: { userId } });
+    return await prisma.user.findUnique({
+      where: { userId },
+      select: { userId: true, name: true, email: true, avatarUrl: true },
+    });
+  }
+
+  async createUser(data: CreateUserData) {
+    const user = await prisma.user.create({
+      data: {
+        name: data.name,
+        avatarUrl: data.avatarUrl,
+        email: data.email,
+        password: await hash(data.password, 10),
+      },
+    });
+
+    return { userId: user.userId };
   }
 
   async updateUser(data: UpdateUserData, userId: string) {
@@ -16,6 +34,8 @@ export default class UsersService {
   }
 
   async deleteUser(userId: string) {
+    const shortUrlsService = new ShortUrlsService();
+    await shortUrlsService.deleteAllShortUrls(userId);
     await prisma.user.delete({ where: { userId } });
     return { userId };
   }

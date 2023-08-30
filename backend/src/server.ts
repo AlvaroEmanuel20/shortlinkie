@@ -1,24 +1,45 @@
 import express from 'express';
 import 'express-async-errors';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import 'dotenv/config';
 import errors from './middlewares/errors';
 import logger from './middlewares/logger';
-import routes from './routes';
+import apiRoutes from './api.routes';
+import shortUrlsRoutes from './shortUrls/shortUrls.routes';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerDocs } from './utils/swagger';
 
 const { PORT } = process.env;
 const app = express();
 
 app.use(logger);
-app.use(cors({ origin: '*' }));
+app.use(cookieParser());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+/**
+ * @swagger
+ *
+ * components:
+ *   schemas:
+ *     ErrorResponse:
+ *       type: object
+ *       properties:
+ *         statusCode:
+ *           type: number
+ *         message:
+ *           type: string
+ *         context:
+ *           type: string
+ *           description: Error context in API
+ */
 
-app.use('/api', routes);
+app.use('/', shortUrlsRoutes);
+app.use('/api', apiRoutes);
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 app.use(errors);
 
 app.listen(PORT, () => {
