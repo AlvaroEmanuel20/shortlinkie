@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import useAuth from '../../auth/hooks/useAuth';
 import { Loader } from '../../components/Loader';
 
-const SidebarStyle = styled.aside`
+export const SidebarStyle = styled.aside`
   position: fixed;
   left: 0;
   top: 0;

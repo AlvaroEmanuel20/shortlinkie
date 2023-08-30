@@ -5,10 +5,11 @@ import { Avatar } from './Avatar';
 import People from '../../assets/people.jpg';
 import Skeleton from './Skeleton';
 import { Link } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AuthContext } from '../../auth/context/AuthContext';
 import Logo from '../../assets/Logo';
 import Menu from '../../assets/Menu';
+import MobileSidebar from './MobileSidebar';
 
 const AppbarStyle = styled.header`
   margin-bottom: 30px;
@@ -36,33 +37,44 @@ const AppbarStyle = styled.header`
 
 export default function Appbar() {
   const auth = useContext(AuthContext);
+  const [mobileSidebar, setMobileSidebar] = useState(false);
 
   return (
-    <AppbarStyle>
-      <HStack $spacing={20} $justify="space-between">
-        <Logo />
+    <>
+      <AppbarStyle>
+        <HStack $spacing={20} $justify="space-between">
+          <Logo />
 
-        <Input type="search" placeholder="Pesquisar" className="search" />
+          <Input type="search" placeholder="Pesquisar" className="search" />
 
-        <HStack $spacing={15}>
-          <Skeleton
-            isLoading={!auth || !auth.user}
-            $width="40px"
-            $height="40px"
-            $radius="100%"
-          >
-            <Link to="/perfil">
-              {auth && auth.user && (
-                <Avatar $bgImg={auth.user.avatarUrl || People} />
-              )}
-            </Link>
-          </Skeleton>
+          <HStack $spacing={15}>
+            <Skeleton
+              isLoading={!auth || !auth.user}
+              $width="40px"
+              $height="40px"
+              $radius="100%"
+            >
+              <Link to="/perfil">
+                {auth && auth.user && (
+                  <Avatar $bgImg={auth.user.avatarUrl || People} />
+                )}
+              </Link>
+            </Skeleton>
 
-          <button className="menu">
-            <Menu />
-          </button>
+            <button
+              className="menu"
+              onClick={() => setMobileSidebar(!mobileSidebar)}
+            >
+              <Menu />
+            </button>
+          </HStack>
         </HStack>
-      </HStack>
-    </AppbarStyle>
+      </AppbarStyle>
+
+      <MobileSidebar
+        isOpen={mobileSidebar}
+        close={() => setMobileSidebar(false)}
+      />
+    </>
   );
 }
