@@ -3,26 +3,34 @@ import 'styled-components';
 declare module 'styled-components' {
   export interface DefaultTheme {
     colors: {
-      orange1: string;
-      orange2: string;
-      white: string;
+      blue: string;
+      blue1: string;
+      blue2: string;
+      dark: string;
+      dark1: string;
       gray: string;
-      blackAlpha: string;
+      gray1: string;
+      light: string;
       red: string;
-      green: string;
     };
     fontSize: {
-      sm: string;
+      header: string;
+      header1: string;
+      header2: string;
+      header3: string;
+      medium: string;
       base: string;
-      md: string;
-      lg: string;
-      xl: string;
-      '2xl': string;
-      '3xl': string;
+      small: string;
+      xsmall: string;
     };
     radius: {
       base: string;
-      md: string;
+      medium: string;
+    };
+    breakpoints: {
+      desktop: string;
+      mobile: string;
+      tablet: string;
     }
   }
 }

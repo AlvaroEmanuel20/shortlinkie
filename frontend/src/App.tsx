@@ -1,11 +1,13 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import Dashboard from './dashboard';
-import Login from './auth/login';
-import SignUp from './auth/signup';
-import Home from './dashboard/Home';
-import LinkPage from './dashboard/LinkPage';
-import { AuthProvider } from './auth/context/AuthContext';
-import Profile from './dashboard/Profile';
+import Dashboard from './pages/dashboard.pages';
+import Login from './pages/auth.pages/Login';
+import SignUp from './pages/auth.pages/SignUp';
+import Home from './pages/dashboard.pages/Home';
+import LinkPage from './pages/dashboard.pages/LinkPage';
+import Settings from './pages/dashboard.pages/Settings';
+import ResetPass from './pages/auth.pages/ResetPass';
+import NewPass from './pages/auth.pages/NewPass';
+import { AuthProvider } from './context/auth.context/AuthContext';
 
 const router = createBrowserRouter([
   {
@@ -25,18 +27,26 @@ const router = createBrowserRouter([
         element: <LinkPage />,
       },
       {
-        path: 'perfil',
-        element: <Profile />,
+        path: 'configuracoes',
+        element: <Settings />,
       },
     ],
   },
   {
-    path: 'login',
+    path: 'entrar',
     element: <Login />,
   },
   {
     path: 'cadastro',
     element: <SignUp />,
+  },
+  {
+    path: 'recuperar-senha',
+    element: <ResetPass />,
+  },
+  {
+    path: 'nova-senha',
+    element: <NewPass />,
   },
 ]);
 

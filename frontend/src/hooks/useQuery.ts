@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { ApiError } from '../lib/interfaces';
+import { ApiError } from '../lib/types';
 import { AxiosError } from 'axios';
 import { apiClient } from '../lib/apiClient';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-export default function useQuery<T>(url: string) {
+export default function useQuery<T>(
+  url: string,
+  onError?: (error: ApiError | undefined) => void
+) {
   const [data, setData] = useState<T>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<ApiError>();
@@ -27,6 +30,14 @@ export default function useQuery<T>(url: string) {
           if (error.response.status === 401) {
             toast.info('Sua sessão expirou, faça login.');
             navigate('/login');
+          }
+
+          if (onError) {
+            onError({
+              statusCode: error.response?.data.statusCode,
+              message: error.response?.data.message,
+              context: error.response?.data.context,
+            });
           }
 
           setError({

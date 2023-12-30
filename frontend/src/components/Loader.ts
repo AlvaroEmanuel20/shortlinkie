@@ -11,17 +11,20 @@ const rotation = keyframes`
 `;
 
 interface Loader {
-  $width?: string;
-  $height?: string;
+  width?: string;
+  height?: string;
   $borderWidth?: string;
-  $color?: string;
+  color?: 'blue' | 'white';
 }
 
 export const Loader = styled.span<Loader>`
-  width: ${(props) => props.$width || '48px'};
-  height: ${(props) => props.$height || '48px'};
+  width: ${(props) => props.width || '48px'};
+  height: ${(props) => props.height || '48px'};
   border: ${(props) => props.$borderWidth || '5px'} solid
-    ${(props) => props.color};
+    ${({ theme, color }) =>
+      (color === 'blue' && theme.colors.blue) ||
+      (color === 'white' && theme.colors.light) ||
+      (!color && theme.colors.blue)};
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;
