@@ -9,6 +9,11 @@ type RedirectQuery = {
   src?: string;
 };
 
+type DateRangeQuery = {
+  fromDate?: Date;
+  toDate?: Date;
+};
+
 export default class ShortUrlsController {
   async getAllShortUrl(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
@@ -26,29 +31,35 @@ export default class ShortUrlsController {
     res.json(shortUrl);
   }
 
-  async getClicksListByDate(req: Request, res: Response) {
+  async getClicksBySrcOfShortId(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
     res.json(
-      await shortUrlsService.getClicksListByDate(
-        req.params.shortId,
-        req.body.date
-      )
+      await shortUrlsService.countClicksBySrcOfShortId(req.params.shortId)
     );
   }
 
-  async getAllClicksBySrc(req: Request, res: Response) {
+  async getQrcodeClicksOfShortId(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
-    res.json(await shortUrlsService.countClicksBySrc(req.params.shortId));
+    res.json(
+      await shortUrlsService.countQrcodeClicksOfShortId(req.params.shortId)
+    );
   }
 
-  async getAllQrcodeClicks(req: Request, res: Response) {
+  async getTotalClicksBySrc(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
-    res.json(await shortUrlsService.countQrcodeClicks(req.params.shortId));
+    res.json(await shortUrlsService.countTotalClicksBySrc(req.user.userId));
   }
 
-  async getClicksByDate(req: Request, res: Response) {
+  async getTotalClicksByDateRange(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
-    res.json(await shortUrlsService.countClicksByDate(req.params.shortId));
+    const { fromDate, toDate } = req.query as DateRangeQuery;
+    res.json(
+      await shortUrlsService.countTotalClicksByDateRange(
+        req.user.userId,
+        fromDate,
+        toDate
+      )
+    );
   }
 
   async redirect(req: Request, res: Response) {

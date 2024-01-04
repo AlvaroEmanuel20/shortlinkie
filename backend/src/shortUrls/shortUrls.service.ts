@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import prisma from '../utils/prisma';
 import { CreateShortUrlData, UpdateShortUrlData } from './shortUrls.interfaces';
+import dayjs from 'dayjs';
 
 export default class ShortUrlsService {
   async getAllShortUrls(userId: string) {
@@ -34,13 +35,7 @@ export default class ShortUrlsService {
     return { shortId };
   }
 
-  async getClicksListByDate(shortId: string, date: Date) {
-    return await prisma.click.findMany({
-      where: { shortId, createdAt: { equals: date } },
-    });
-  }
-
-  async countClicksBySrc(shortId: string) {
+  async countClicksBySrcOfShortId(shortId: string) {
     return await prisma.click.groupBy({
       by: ['source'],
       where: { shortId, source: { not: null }, isQrCode: false },
@@ -48,7 +43,7 @@ export default class ShortUrlsService {
     });
   }
 
-  async countQrcodeClicks(shortId: string) {
+  async countQrcodeClicksOfShortId(shortId: string) {
     return await prisma.click.groupBy({
       by: ['source'],
       where: { shortId, isQrCode: true },
@@ -56,10 +51,28 @@ export default class ShortUrlsService {
     });
   }
 
-  async countClicksByDate(shortId: string) {
+  async countTotalClicksBySrc(userId: string) {
+    return await prisma.click.groupBy({
+      by: ['source'],
+      where: { source: { not: null }, isQrCode: false, shortUrl: { userId } },
+      _count: true,
+    });
+  }
+
+  async countTotalClicksByDateRange(userId: string, from?: Date, to?: Date) {
     return await prisma.click.groupBy({
       by: ['createdAt'],
-      where: { shortId },
+      where: {
+        AND: [
+          {
+            createdAt: {
+              gte: from ? from : dayjs().subtract(7, 'days').toDate(),
+            },
+          },
+          { createdAt: { lte: to ? to : dayjs().toDate() } },
+        ],
+        shortUrl: { userId },
+      },
       _count: true,
     });
   }

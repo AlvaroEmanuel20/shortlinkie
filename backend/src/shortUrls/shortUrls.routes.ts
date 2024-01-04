@@ -4,7 +4,6 @@ import isAuthenticated from '../middlewares/isAuthenticated';
 import validate from '../middlewares/validate';
 import {
   createShortUrlSchema,
-  getClicksListByDateSchema,
   updateShortUrlSchema,
 } from './shortUrls.validations';
 
@@ -318,34 +317,6 @@ const shortUrlsController = new ShortUrlsController();
  *                 statusCode: 500
  *                 message: Internal server error
  *                 context: shorturls
- * /shorturls/clicks-list-date/{shortId}:
- *   get:
- *     tags: [ShortUrls]
- *     summary: Get all clicks of a date
- *     parameters:
- *       - in: path
- *         name: shortId
- *         type: string
- *         required: true
- *     security:
- *       - cookieAuth: []
- *     responses:
- *       200:
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Click'
- *       500:
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *               example:
- *                 statusCode: 500
- *                 message: Internal server error
- *                 context: shorturls
  * /shorturls/clicks-src/{shortId}:
  *   get:
  *     tags: [ShortUrls]
@@ -402,14 +373,18 @@ const shortUrlsController = new ShortUrlsController();
  *                 statusCode: 500
  *                 message: Internal server error
  *                 context: shorturls
- * /shorturls/clicks-date/{shortId}:
+ * /shorturls/total-clicks-date:
  *   get:
  *     tags: [ShortUrls]
- *     summary: Get clicks count by date
+ *     summary: Get total clicks by date range
  *     parameters:
- *       - in: path
- *         name: shortId
- *         type: string
+ *       - in: query
+ *         name: fromDate
+ *         type: date
+ *         required: true
+ *       - in: query
+ *         name: toDate
+ *         type: date
  *         required: true
  *     security:
  *       - cookieAuth: []
@@ -421,6 +396,29 @@ const shortUrlsController = new ShortUrlsController();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/ClicksByDate'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *               example:
+ *                 statusCode: 500
+ *                 message: Internal server error
+ *                 context: shorturls
+ * /shorturls/total-clicks-src:
+ *   get:
+ *     tags: [ShortUrls]
+ *     summary: Get total clicks by src
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ClicksBySrc'
  *       500:
  *         content:
  *           application/json:
@@ -443,30 +441,29 @@ shortUrlsRoutes.get(
   shortUrlsController.getShortUrl
 );
 
-shortUrlsRoutes.get(
-  '/shorturls/clicks-list-date/:shortId',
-  validate(getClicksListByDateSchema),
-  isAuthenticated,
-  shortUrlsController.getClicksListByDate
-);
-
 //STATISTICS ROUTES
 shortUrlsRoutes.get(
   '/shorturls/clicks-src/:shortId',
   isAuthenticated,
-  shortUrlsController.getAllClicksBySrc
+  shortUrlsController.getClicksBySrcOfShortId
 );
 
 shortUrlsRoutes.get(
   '/shorturls/clicks-qr/:shortId',
   isAuthenticated,
-  shortUrlsController.getAllQrcodeClicks
+  shortUrlsController.getQrcodeClicksOfShortId
 );
 
 shortUrlsRoutes.get(
-  '/shorturls/clicks-date/:shortId',
+  '/shorturls/total-clicks-src',
   isAuthenticated,
-  shortUrlsController.getClicksByDate
+  shortUrlsController.getTotalClicksBySrc
+);
+
+shortUrlsRoutes.get(
+  '/shorturls/total-clicks-date',
+  isAuthenticated,
+  shortUrlsController.getTotalClicksByDateRange
 );
 //STATISTICS ROUTES
 
