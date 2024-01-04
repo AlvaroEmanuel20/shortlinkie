@@ -8,7 +8,7 @@ import ReactApexChart from 'react-apexcharts';
 import { ChartWrapper } from '../../components/dashboard.components/ChartWrapper';
 import StatCard from '../../components/dashboard.components/StatCard';
 import useQuery from '../../hooks/useQuery';
-import { ShortUrl } from '../../lib/types';
+import { ClicksBySrc, ShortUrl } from '../../lib/types';
 import Skeleton from '../../components/dashboard.components/Skeleton';
 import { toast } from 'react-toastify';
 import AddShorturlForm from '../../components/dashboard.components/forms.components/AddShorturlForm';
@@ -77,6 +77,16 @@ export default function Home() {
   } = useQuery<ShortUrl[]>('/shorturls', (error) => {
     if (error) toast.error('Erro ao carregar seus links.');
   });
+
+  const {
+    data: totalClicksSrc,
+    isLoading: isLoadingTotalClicksSrc,
+    refetch: refetchTotalClicksSrc,
+  } = useQuery<ClicksBySrc>('/shorturls/total-clicks-src', (error) => {
+    if (error) toast.error('Erro ao carregar o total de cliques por origem.');
+  });
+
+  console.log(totalClicksSrc);
 
   return (
     <HomeStyles>
