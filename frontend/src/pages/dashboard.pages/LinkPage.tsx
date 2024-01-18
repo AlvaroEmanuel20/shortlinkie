@@ -240,6 +240,9 @@ export default function LinkPage() {
                           sparkline: {
                             enabled: true,
                           },
+                          toolbar: {
+                            show: false,
+                          },
                           fontFamily: 'Nunito, sans-serif',
                         },
                         plotOptions: {
@@ -247,17 +250,42 @@ export default function LinkPage() {
                             borderRadius: 4,
                           },
                         },
+                        grid: {
+                          show: false,
+                        },
+                        dataLabels: {
+                          enabled: false,
+                        },
+                        legend: {
+                          show: false,
+                        },
                         fill: {
                           type: 'solid',
                         },
                         xaxis: {
                           categories: clicksBySrc?.map((item) => item.source),
+                          labels: {
+                            show: false,
+                          },
+                          axisBorder: {
+                            show: false,
+                          },
+                          axisTicks: {
+                            show: false,
+                          },
                         },
                         yaxis: {
                           labels: {
                             formatter: function (val) {
                               return val.toFixed(0);
                             },
+                          },
+                          show: false,
+                          axisBorder: {
+                            show: false,
+                          },
+                          axisTicks: {
+                            show: false,
                           },
                         },
                       }}
@@ -308,6 +336,9 @@ export default function LinkPage() {
                           sparkline: {
                             enabled: true,
                           },
+                          toolbar: {
+                            show: false,
+                          },
                           fontFamily: 'Nunito, sans-serif',
                         },
                         plotOptions: {
@@ -315,17 +346,42 @@ export default function LinkPage() {
                             borderRadius: 4,
                           },
                         },
+                        grid: {
+                          show: false,
+                        },
+                        dataLabels: {
+                          enabled: false,
+                        },
+                        legend: {
+                          show: false,
+                        },
                         fill: {
                           type: 'solid',
                         },
                         xaxis: {
                           categories: clicksByQr?.map((item) => item.source),
+                          labels: {
+                            show: false,
+                          },
+                          axisBorder: {
+                            show: false,
+                          },
+                          axisTicks: {
+                            show: false,
+                          },
                         },
                         yaxis: {
                           labels: {
                             formatter: function (val) {
                               return val.toFixed(0);
                             },
+                          },
+                          show: false,
+                          axisBorder: {
+                            show: false,
+                          },
+                          axisTicks: {
+                            show: false,
                           },
                         },
                       }}

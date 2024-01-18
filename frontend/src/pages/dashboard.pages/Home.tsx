@@ -78,15 +78,10 @@ export default function Home() {
     if (error) toast.error('Erro ao carregar seus links.');
   });
 
-  const {
-    data: totalClicksSrc,
-    isLoading: isLoadingTotalClicksSrc,
-    refetch: refetchTotalClicksSrc,
-  } = useQuery<ClicksBySrc>('/shorturls/total-clicks-src', (error) => {
-    if (error) toast.error('Erro ao carregar o total de cliques por origem.');
-  });
-
-  console.log(totalClicksSrc);
+  const { data: totalClicksSrc, isLoading: isLoadingTotalClicksSrc } =
+    useQuery<ClicksBySrc>('/shorturls/total-clicks-src', (error) => {
+      if (error) toast.error('Erro ao carregar o total de cliques por origem.');
+    });
 
   return (
     <HomeStyles>
@@ -101,8 +96,7 @@ export default function Home() {
                 )
               : 0
           }
-          chartSeries={[130, 840, 645, 550, 349, 260, 870, 1000]}
-          chartXaxis={[1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998]}
+          noChart
         />
       </Skeleton>
 
@@ -110,13 +104,12 @@ export default function Home() {
         <StatCard
           title="URLs totais:"
           statNumber={shorturls ? shorturls.length : 0}
-          chartSeries={[130, 840, 645, 550, 349, 260, 870, 1000]}
-          chartXaxis={[1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998]}
+          noChart
           chartSeriesLabel="URLs criadas"
         />
       </Skeleton>
 
-      <Skeleton isLoading={true}>
+      <Skeleton isLoading={isLoadingTotalClicksSrc}>
         <Card $padding="0">
           <Stack
             style={{ height: '100%' }}
@@ -140,10 +133,16 @@ export default function Home() {
                     theme.colors.blue1,
                     theme.colors.blue2,
                   ],
+                  noData: {
+                    text: 'Sem dados disponíveis',
+                  },
                   chart: {
                     id: 'bar-chart1',
                     sparkline: {
                       enabled: true,
+                    },
+                    toolbar: {
+                      show: false,
                     },
                     fontFamily: 'Nunito, sans-serif',
                   },
@@ -152,22 +151,51 @@ export default function Home() {
                       borderRadius: 4,
                     },
                   },
+                  grid: {
+                    show: false,
+                  },
+                  dataLabels: {
+                    enabled: false,
+                  },
+                  legend: {
+                    show: false,
+                  },
                   fill: {
                     type: 'solid',
                   },
                   xaxis: {
-                    categories: [
-                      1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1998,
-                      1999, 2000,
-                    ],
+                    categories: totalClicksSrc?.map((item) => item.source),
+                    labels: {
+                      show: false,
+                    },
+                    axisBorder: {
+                      show: false,
+                    },
+                    axisTicks: {
+                      show: false,
+                    },
+                  },
+                  yaxis: {
+                    labels: {
+                      formatter: function (val) {
+                        return val.toFixed(0);
+                      },
+                    },
+                    show: false,
+                    axisBorder: {
+                      show: false,
+                    },
+                    axisTicks: {
+                      show: false,
+                    },
                   },
                 }}
                 series={[
                   {
                     name: 'Cliques',
-                    data: [
-                      130, 840, 645, 550, 349, 260, 870, 1000, 1400, 1600, 850,
-                    ],
+                    data: totalClicksSrc
+                      ? totalClicksSrc?.map((item) => item._count)
+                      : [],
                   },
                 ]}
               />
@@ -176,7 +204,7 @@ export default function Home() {
         </Card>
       </Skeleton>
 
-      <Skeleton isLoading={false}>
+      <Skeleton isLoading={isLoadingShorturls}>
         <Card>
           <Stack spacing={15}>
             <h2>Criar Link</h2>
@@ -207,7 +235,9 @@ export default function Home() {
                       <TableRowData
                         key={item.shortId}
                         name={item.title}
-                        shortLink={`https://encurt.com/${item.shortId}`}
+                        shortLink={`${import.meta.env.VITE_API_URL}/${
+                          item.shortId
+                        }`}
                         shortId={item.shortId}
                         clicks={item._count.clicks}
                       />

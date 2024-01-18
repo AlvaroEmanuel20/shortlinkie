@@ -24,9 +24,10 @@ const StatCardStyles = styled(Card)`
 type StatCardProps = {
   title: string;
   statNumber: number;
-  chartSeries: number[];
+  chartSeries?: number[];
   chartSeriesLabel?: string;
-  chartXaxis: number[];
+  chartXaxis?: string[];
+  noChart?: boolean;
 };
 
 export default function StatCard({
@@ -35,6 +36,7 @@ export default function StatCard({
   chartSeries,
   chartSeriesLabel,
   chartXaxis,
+  noChart,
 }: StatCardProps) {
   const theme = useTheme();
 
@@ -46,34 +48,43 @@ export default function StatCard({
           <p>{statNumber}</p>
         </Stack>
 
-        <ChartWrapper>
-          <ReactApexChart
-            type="area"
-            height="100%"
-            options={{
-              colors: [theme.colors.blue2],
-              chart: {
-                id: 'area-chart1',
-                sparkline: {
-                  enabled: true,
+        {!noChart && (
+          <ChartWrapper>
+            <ReactApexChart
+              type="area"
+              height="100%"
+              options={{
+                colors: [theme.colors.blue2],
+                chart: {
+                  id: 'area-chart1',
+                  sparkline: {
+                    enabled: true,
+                  },
+                  fontFamily: 'Nunito, sans-serif',
                 },
-                fontFamily: 'Nunito, sans-serif',
-              },
-              stroke: {
-                curve: 'straight',
-              },
-              xaxis: {
-                categories: chartXaxis,
-              },
-            }}
-            series={[
-              {
-                name: chartSeriesLabel ? chartSeriesLabel : 'Cliques',
-                data: chartSeries,
-              },
-            ]}
-          />
-        </ChartWrapper>
+                stroke: {
+                  curve: 'straight',
+                },
+                xaxis: {
+                  categories: chartXaxis,
+                },
+                yaxis: {
+                  labels: {
+                    formatter: function (val) {
+                      return val.toFixed(0);
+                    },
+                  },
+                },
+              }}
+              series={[
+                {
+                  name: chartSeriesLabel ? chartSeriesLabel : 'Cliques',
+                  data: chartSeries ? chartSeries : [],
+                },
+              ]}
+            />
+          </ChartWrapper>
+        )}
       </Stack>
     </StatCardStyles>
   );
