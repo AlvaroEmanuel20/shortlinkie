@@ -140,6 +140,7 @@ export default function Settings() {
               color: theme.colors.gray1,
               width: '150px',
             }}
+            type="submit"
             size="small"
             $bg="transparent"
             $bgHover={theme.colors.red}

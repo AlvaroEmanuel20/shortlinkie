@@ -6,7 +6,7 @@ import styled, { useTheme } from 'styled-components';
 import { useContext } from 'react';
 import { AuthContext } from '../../context/auth.context/AuthContext';
 
-const PhotoUploadStyles = styled.button`
+const PhotoUploadStyles = styled.div`
   position: relative;
   border: 1px solid ${(props) => props.theme.colors.gray1};
   border-radius: ${(props) => props.theme.radius.base};
@@ -16,6 +16,7 @@ const PhotoUploadStyles = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.light};
