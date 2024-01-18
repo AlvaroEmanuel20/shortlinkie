@@ -405,6 +405,38 @@ const shortUrlsController = new ShortUrlsController();
  *                 statusCode: 500
  *                 message: Internal server error
  *                 context: shorturls
+ * /shorturls/total-created-date:
+ *   get:
+ *     tags: [ShortUrls]
+ *     summary: Get total created urls by date range
+ *     parameters:
+ *       - in: query
+ *         name: fromDate
+ *         type: date
+ *         required: true
+ *       - in: query
+ *         name: toDate
+ *         type: date
+ *         required: true
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ClicksByDate'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *               example:
+ *                 statusCode: 500
+ *                 message: Internal server error
+ *                 context: shorturls
  * /shorturls/total-clicks-src:
  *   get:
  *     tags: [ShortUrls]
@@ -429,19 +461,13 @@ const shortUrlsController = new ShortUrlsController();
  *                 message: Internal server error
  *                 context: shorturls
  */
-shortUrlsRoutes.get(
-  '/shorturls',
-  isAuthenticated,
-  shortUrlsController.getAllShortUrl
-);
-
-shortUrlsRoutes.get(
-  '/shorturls/:shortId',
-  isAuthenticated,
-  shortUrlsController.getShortUrl
-);
-
 //STATISTICS ROUTES
+shortUrlsRoutes.get(
+  '/shorturls/total-clicks-src',
+  isAuthenticated,
+  shortUrlsController.getTotalClicksBySrc
+);
+
 shortUrlsRoutes.get(
   '/shorturls/clicks-src/:shortId',
   isAuthenticated,
@@ -453,19 +479,19 @@ shortUrlsRoutes.get(
   isAuthenticated,
   shortUrlsController.getQrcodeClicksOfShortId
 );
-
-shortUrlsRoutes.get(
-  '/shorturls/total-clicks-src',
-  isAuthenticated,
-  shortUrlsController.getTotalClicksBySrc
-);
-
-shortUrlsRoutes.get(
-  '/shorturls/total-clicks-date',
-  isAuthenticated,
-  shortUrlsController.getTotalClicksByDateRange
-);
 //STATISTICS ROUTES
+
+shortUrlsRoutes.get(
+  '/shorturls',
+  isAuthenticated,
+  shortUrlsController.getAllShortUrl
+);
+
+shortUrlsRoutes.get(
+  '/shorturls/:shortId',
+  isAuthenticated,
+  shortUrlsController.getShortUrl
+);
 
 shortUrlsRoutes.get('/:shortId', shortUrlsController.redirect);
 

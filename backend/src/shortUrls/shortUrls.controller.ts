@@ -9,11 +9,6 @@ type RedirectQuery = {
   src?: string;
 };
 
-type DateRangeQuery = {
-  fromDate?: Date;
-  toDate?: Date;
-};
-
 export default class ShortUrlsController {
   async getAllShortUrl(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
@@ -48,18 +43,6 @@ export default class ShortUrlsController {
   async getTotalClicksBySrc(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
     res.json(await shortUrlsService.countTotalClicksBySrc(req.user.userId));
-  }
-
-  async getTotalClicksByDateRange(req: Request, res: Response) {
-    const shortUrlsService = new ShortUrlsService();
-    const { fromDate, toDate } = req.query as DateRangeQuery;
-    res.json(
-      await shortUrlsService.countTotalClicksByDateRange(
-        req.user.userId,
-        fromDate,
-        toDate
-      )
-    );
   }
 
   async redirect(req: Request, res: Response) {

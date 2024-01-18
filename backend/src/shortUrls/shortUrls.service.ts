@@ -1,7 +1,6 @@
 import { nanoid } from 'nanoid';
 import prisma from '../utils/prisma';
 import { CreateShortUrlData, UpdateShortUrlData } from './shortUrls.interfaces';
-import dayjs from 'dayjs';
 
 export default class ShortUrlsService {
   async getAllShortUrls(userId: string) {
@@ -55,24 +54,6 @@ export default class ShortUrlsService {
     return await prisma.click.groupBy({
       by: ['source'],
       where: { source: { not: null }, isQrCode: false, shortUrl: { userId } },
-      _count: true,
-    });
-  }
-
-  async countTotalClicksByDateRange(userId: string, from?: Date, to?: Date) {
-    return await prisma.click.groupBy({
-      by: ['createdAt'],
-      where: {
-        AND: [
-          {
-            createdAt: {
-              gte: from ? from : dayjs().subtract(7, 'days').toDate(),
-            },
-          },
-          { createdAt: { lte: to ? to : dayjs().toDate() } },
-        ],
-        shortUrl: { userId },
-      },
       _count: true,
     });
   }
