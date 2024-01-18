@@ -1,13 +1,18 @@
 import { styled } from 'styled-components';
 
 export const Stack = styled.div<{
-  $spacing?: number;
-  $items?: string;
-  $justify?: string;
+  spacing?: number;
+  $items?: 'center' | 'flex-start' | 'flex-end';
+  $justify?:
+    | 'center'
+    | 'space-between'
+    | 'flex-start'
+    | 'flex-end'
+    | 'space-around';
 }>`
   display: flex;
   flex-direction: column;
   align-items: ${(props) => props.$items};
-  gap: ${(props) => props.$spacing + 'px'};
+  gap: ${(props) => props.spacing + 'px'};
   justify-content: ${(props) => props.$justify};
 `;

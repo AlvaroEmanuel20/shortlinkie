@@ -25,8 +25,8 @@ export default class AuthService {
     };
   }
 
-  async logout(token: string) {
-    await prisma.invalidToken.create({ data: { token } });
+  async logout(token: string, userId: string) {
+    await prisma.invalidToken.create({ data: { token, userId } });
     return { success: true };
   }
 }

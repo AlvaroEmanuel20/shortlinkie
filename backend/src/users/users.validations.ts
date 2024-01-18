@@ -33,3 +33,19 @@ export const updateUserSchema = z.object({
       .nullish(),
   }),
 });
+
+export const resetPassSchema = z.object({
+  body: z.object({
+    email: z
+      .string({ required_error: 'Email is required' })
+      .email('Invalid email'),
+  }),
+});
+
+export const confirmResetPassSchema = z.object({
+  body: z.object({
+    newPassword: z
+      .string({ required_error: 'Password is required' })
+      .min(8, 'Minimum 8 characters'),
+  }),
+});

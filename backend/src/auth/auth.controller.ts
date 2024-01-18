@@ -6,7 +6,7 @@ import AuthService from './auth.service';
 export default class AuthController {
   private readonly cookiesOpt: CookieOptions = {
     httpOnly: true,
-    maxAge: 86400000,
+    maxAge: process.env.COOKIES_MAX_AGE as number | undefined,
     secure: process.env.NODE_ENV === 'production',
     sameSite: true,
   };
@@ -32,7 +32,10 @@ export default class AuthController {
   async logout(req: Request, res: Response) {
     try {
       const authService = new AuthService();
-      const { success } = await authService.logout(req.cookies['access_token']);
+      const { success } = await authService.logout(
+        req.cookies['access_token'],
+        req.user.userId
+      );
       res.clearCookie('access_token', this.cookiesOpt);
       res.json({ success });
     } catch (error) {

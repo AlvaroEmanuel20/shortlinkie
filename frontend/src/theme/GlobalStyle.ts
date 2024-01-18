@@ -19,13 +19,9 @@ export const GlobalStyle = createGlobalStyle`
   a {
     text-decoration: none;
     color: inherit;
-    display: flex;
   }
 
   button {
     cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 `;

@@ -1,41 +1,61 @@
 import { nanoid } from 'nanoid';
 import prisma from '../utils/prisma';
 import { CreateShortUrlData, UpdateShortUrlData } from './shortUrls.interfaces';
-import CustomBusinessError from '../utils/errors/CustomBusinessError';
 
 export default class ShortUrlsService {
-  async getAllShortUrls(userId: string, sources?: boolean) {
-    if (sources)
-      return await prisma.shortUrl.findMany({
-        where: { userId },
-        include: {
-          Source: {
-            select: {
-              name: true,
-              clicks: true,
-            },
+  async getAllShortUrls(userId: string) {
+    return await prisma.shortUrl.findMany({
+      where: { userId },
+      include: {
+        _count: {
+          select: {
+            clicks: true,
           },
         },
-      });
-
-    return await prisma.shortUrl.findMany({ where: { userId } });
+      },
+    });
   }
 
-  async getShortUrl(shortId: string, sources?: boolean) {
-    if (sources)
-      return await prisma.shortUrl.findUnique({
-        where: { shortId },
-        include: {
-          Source: {
-            select: {
-              name: true,
-              clicks: true,
-            },
+  async getShortUrl(shortId: string) {
+    return await prisma.shortUrl.findUnique({
+      where: { shortId },
+      include: {
+        _count: {
+          select: {
+            clicks: true,
           },
         },
-      });
+      },
+    });
+  }
 
-    return await prisma.shortUrl.findUnique({ where: { shortId } });
+  async createClick(shortId: string, source?: string, isQrCode?: boolean) {
+    await prisma.click.create({ data: { shortId, source, isQrCode } });
+    return { shortId };
+  }
+
+  async countClicksBySrcOfShortId(shortId: string) {
+    return await prisma.click.groupBy({
+      by: ['source'],
+      where: { shortId, source: { not: null }, isQrCode: false },
+      _count: true,
+    });
+  }
+
+  async countQrcodeClicksOfShortId(shortId: string) {
+    return await prisma.click.groupBy({
+      by: ['source'],
+      where: { shortId, isQrCode: true },
+      _count: true,
+    });
+  }
+
+  async countTotalClicksBySrc(userId: string) {
+    return await prisma.click.groupBy({
+      by: ['source'],
+      where: { source: { not: null }, isQrCode: false, shortUrl: { userId } },
+      _count: true,
+    });
   }
 
   async createShortUrl(data: CreateShortUrlData, userId: string) {
@@ -61,58 +81,11 @@ export default class ShortUrlsService {
   }
 
   async deleteShortUrl(shortId: string) {
-    await prisma.source.deleteMany({ where: { shortId } });
-    await prisma.shortUrl.delete({ where: { shortId } });
+    await prisma.$transaction([
+      prisma.click.deleteMany({ where: { shortId } }),
+      prisma.shortUrl.delete({ where: { shortId } }),
+    ]);
+
     return { shortId };
-  }
-
-  async deleteAllShortUrls(userId: string) {
-    await prisma.source.deleteMany({ where: { userId } });
-    await prisma.shortUrl.deleteMany({ where: { userId } });
-    return { userId };
-  }
-
-  async increaseClicks(shortId: string, src?: string) {
-    const shortUrl = await prisma.shortUrl.findUnique({ where: { shortId } });
-    if (!shortUrl)
-      throw new CustomBusinessError('Short Url not found', 'shortUrls');
-
-    if (src) {
-      const sourceExists = await prisma.source.findUnique({
-        where: { name: src },
-      });
-
-      if (!sourceExists)
-        await prisma.source.create({
-          data: { name: src, shortId, userId: shortUrl.userId },
-        });
-
-      await prisma.source.update({
-        where: { name: src },
-        data: {
-          clicks: { increment: 1 },
-        },
-      });
-    }
-
-    await prisma.shortUrl.update({
-      where: { shortId },
-      data: {
-        clicks: { increment: 1 },
-      },
-    });
-  }
-
-  async totalClicksAndUrls(userId: string) {
-    const shortUrls = await this.getAllShortUrls(userId);
-    const totalClicks = shortUrls.reduce(
-      (acc, value) => (acc += value.clicks),
-      0
-    );
-
-    return {
-      totalClicks,
-      totalUrls: shortUrls.length,
-    };
   }
 }

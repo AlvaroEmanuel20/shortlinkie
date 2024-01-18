@@ -10,12 +10,12 @@ import shortUrlsRoutes from './shortUrls/shortUrls.routes';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerDocs } from './utils/swagger';
 
-const { PORT } = process.env;
+const { PORT, FRONT_URL } = process.env;
 const app = express();
 
 app.use(logger);
 app.use(cookieParser());
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: FRONT_URL, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

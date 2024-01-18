@@ -4,58 +4,61 @@ import HttpBusinessError from '../utils/errors/HttpBusinessError';
 import { Prisma } from '@prisma/client';
 import CustomBusinessError from '../utils/errors/CustomBusinessError';
 
-interface SourcesQuery {
-  sources?: boolean;
-}
+type RedirectQuery = {
+  qrcode?: boolean;
+  src?: string;
+};
 
 export default class ShortUrlsController {
   async getAllShortUrl(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
-    const { sources } = req.query as SourcesQuery;
-    const shortUrls = await shortUrlsService.getAllShortUrls(
-      req.user.userId,
-      sources
-    );
-
+    const shortUrls = await shortUrlsService.getAllShortUrls(req.user.userId);
     res.json(shortUrls);
   }
 
   async getShortUrl(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
-    const { sources } = req.query as SourcesQuery;
-    const shortUrl = await shortUrlsService.getShortUrl(
-      req.params.shortId,
-      sources
-    );
+    const shortUrl = await shortUrlsService.getShortUrl(req.params.shortId);
 
     if (!shortUrl)
-      throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
+      throw new HttpBusinessError('Short Url not found', 404, 'shorturls');
 
     res.json(shortUrl);
   }
 
-  async getTotalClicksAndUrls(req: Request, res: Response) {
+  async getClicksBySrcOfShortId(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
-    const result = await shortUrlsService.totalClicksAndUrls(req.user.userId);
-    res.json(result);
+    res.json(
+      await shortUrlsService.countClicksBySrcOfShortId(req.params.shortId)
+    );
+  }
+
+  async getQrcodeClicksOfShortId(req: Request, res: Response) {
+    const shortUrlsService = new ShortUrlsService();
+    res.json(
+      await shortUrlsService.countQrcodeClicksOfShortId(req.params.shortId)
+    );
+  }
+
+  async getTotalClicksBySrc(req: Request, res: Response) {
+    const shortUrlsService = new ShortUrlsService();
+    res.json(await shortUrlsService.countTotalClicksBySrc(req.user.userId));
   }
 
   async redirect(req: Request, res: Response) {
     try {
       const shortUrlsService = new ShortUrlsService();
-      const { shortId } = req.params;
-      const { src } = req.query as { src?: string };
-
-      const result = await shortUrlsService.getShortUrl(shortId);
+      const { qrcode, src } = req.query as RedirectQuery;
+      const result = await shortUrlsService.getShortUrl(req.params.shortId);
 
       if (!result)
-        throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
+        throw new HttpBusinessError('Short Url not found', 404, 'shorturls');
 
-      await shortUrlsService.increaseClicks(shortId, src);
+      await shortUrlsService.createClick(result.shortId, src, qrcode);
       res.redirect(result.originalUrl);
     } catch (error) {
       if (error instanceof CustomBusinessError) {
-        throw new HttpBusinessError(error.message, 404, 'shortUrls');
+        throw new HttpBusinessError(error.message, 404, 'shorturls');
       }
     }
   }
@@ -63,7 +66,6 @@ export default class ShortUrlsController {
   async create(req: Request, res: Response) {
     try {
       const shortUrlsService = new ShortUrlsService();
-
       const { shortId } = await shortUrlsService.createShortUrl(
         req.body,
         req.user.userId
@@ -71,18 +73,13 @@ export default class ShortUrlsController {
 
       res.status(201).json({ shortId });
     } catch (error) {
-      throw new HttpBusinessError(
-        'There is an shortUrl with this shortId',
-        409,
-        'shortUrls'
-      );
+      //empty
     }
   }
 
   async update(req: Request, res: Response) {
     try {
       const shortUrlsService = new ShortUrlsService();
-
       const { shortId } = await shortUrlsService.updateShortUrl(
         req.body,
         req.params.shortId
@@ -95,10 +92,10 @@ export default class ShortUrlsController {
           throw new HttpBusinessError(
             'There is an short url with this shortId',
             409,
-            'shortUrls'
+            'shorturls'
           );
         } else {
-          throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
+          throw new HttpBusinessError('Short Url not found', 404, 'shorturls');
         }
       }
     }
@@ -107,14 +104,13 @@ export default class ShortUrlsController {
   async delete(req: Request, res: Response) {
     try {
       const shortUrlsService = new ShortUrlsService();
-
       const { shortId } = await shortUrlsService.deleteShortUrl(
         req.params.shortId
       );
 
       res.json({ shortId });
     } catch (error) {
-      throw new HttpBusinessError('Short Url not found', 404, 'shortUrls');
+      throw new HttpBusinessError('Short Url not found', 404, 'shorturls');
     }
   }
 }
