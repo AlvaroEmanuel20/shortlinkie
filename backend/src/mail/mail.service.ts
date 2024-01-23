@@ -1,4 +1,6 @@
 import * as nodemailer from 'nodemailer';
+import CustomBusinessError from '../utils/errors/CustomBusinessError';
+import axios from 'axios';
 
 interface TestMailData {
   to: string;
@@ -7,7 +9,19 @@ interface TestMailData {
   plainText: string;
 }
 
-type MailData = TestMailData;
+interface MailData extends TestMailData {
+  templateId?: number;
+  params?: MailParams;
+}
+
+type MailParams = {
+  FNAME?: string
+  LNAME?: string
+  confirmEmailLink?: string
+  newConfirmEmailLink?: string
+  recoverPassLink?: string
+  newRecoverPassEmailLink?: string
+}
 
 export default class MailService {
   private config = {
@@ -55,6 +69,39 @@ export default class MailService {
     if (this.config.mailEnv === 'dev') {
       await this.sendTestMail(mailData);
       return;
+    }
+
+    if (this.config.mailEnv === 'prod') {
+      const brevoApiKey = process.env.BREVO_API_KEY;
+      const replyEmail = process.env.REPLY_EMAIL;
+      const emailTag = process.env.EMAIL_TAG;
+
+      const emailConfig = {
+        subject: mailData.subject,
+        textContent: mailData.plainText,
+        htmlContent: mailData.html,
+        sender: { name: this.config.fromName, email: this.config.fromEmail },
+        to: [{ email: mailData.to }],
+        replyTo: { email: replyEmail },
+        templateId: mailData.templateId,
+        tags: [emailTag],
+        params: mailData.params,
+      };
+
+      try {
+        const url = 'https://api.brevo.com/v3/smtp/email';
+        const res = await axios.post<{ messageId: string }>(url, emailConfig, {
+          headers: { 'api-key': brevoApiKey },
+        });
+
+        return res.data.messageId;
+      } catch (error) {
+        
+        throw new CustomBusinessError(
+          'Error to send confirmation email',
+          'send email'
+        );
+      }
     }
   }
 }

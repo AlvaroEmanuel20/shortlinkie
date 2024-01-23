@@ -147,9 +147,15 @@ export default class UsersService {
     const resetUrl = process.env.RESET_PASS_URL;
     await mailService.sendMail({
       to: user.email,
-      subject: 'Reset password',
+      subject: 'Recupere sua senha e continue usando o Encurtando',
       html: `<a href="${resetUrl}?token=${resetPassToken.token}">Clique para resetar</a>`,
-      plainText: '',
+      plainText: `Recupere aqui: ${resetUrl}?token=${resetPassToken.token}`,
+      templateId: Number(process.env.RECOVER_PASSWORD_TEMPLATE_ID),
+      params: {
+        FNAME: user.name,
+        recoverPassLink: `${resetUrl}?token=${resetPassToken.token}`,
+        newRecoverPassEmailLink: `${process.env.FRONT_URL}/recuperar-senha`,
+      },
     });
 
     return { userId: user.userId, sentEmail: true };
@@ -212,9 +218,14 @@ export default class UsersService {
     const verificationUrl = process.env.VERIFICATION_USER_URL;
     await mailService.sendMail({
       to: user.email,
-      subject: 'Confirm account',
+      subject: 'Bem vindo(a) ao Encurtando, confirme seu email',
       html: `<a href="${verificationUrl}?token=${verificationToken.token}">Clique para verificar</a>`,
-      plainText: '',
+      plainText: `Verifique aqui: ${verificationUrl}?token=${verificationToken.token}`,
+      templateId: Number(process.env.CONFIRM_ACCOUNT_TEMPLATE_ID),
+      params: {
+        FNAME: user.name,
+        confirmEmailLink: `${verificationUrl}?token=${verificationToken.token}`,
+      },
     });
   }
 }
