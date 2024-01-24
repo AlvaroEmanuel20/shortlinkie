@@ -17,13 +17,15 @@ import { useState } from 'react';
 import HeaderModal from '../../components/dashboard.components/modal.components/HeaderModal';
 import useQuery from '../../hooks/useQuery';
 import { toast } from 'react-toastify';
-import { ClicksBySrc, ShortId, ShortUrl } from '../../lib/types';
+import { ClicksBySrc, QrConfig, ShortId, ShortUrl } from '../../lib/types';
 import Skeleton from '../../components/dashboard.components/Skeleton';
 import dayjs from 'dayjs';
 import useMutation from '../../hooks/useMutation';
 import { Loader } from '../../components/Loader';
 import EditShorturlForm from '../../components/dashboard.components/forms.components/EditShorturlForm';
 import useCopy from '../../hooks/dashboard.hooks/useCopy';
+import useQrCode from '../../hooks/dashboard.hooks/useQrCode';
+import { QRCodeSVG } from 'qrcode.react';
 
 const LinkPageStyles = styled.div`
   padding-bottom: 45px;
@@ -78,9 +80,10 @@ export default function LinkPage() {
   const theme = useTheme();
   const navigate = useNavigate();
   const { inputRef, copyFunc } = useCopy();
+  const { qrCode, qrCodeRef, setQrCode, downloadQrCode, downloading } =
+    useQrCode();
 
   const [src, setSrc] = useState('');
-  const [qrSrc, setQrSrc] = useState('');
 
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenCopy, setIsOpenCopy] = useState(false);
@@ -90,6 +93,13 @@ export default function LinkPage() {
     `/shorturls/${shortId}`,
     (error) => {
       if (error) toast.error('Erro ao carregar as informações do link');
+    }
+  );
+
+  const { data: qrConfig, isLoading: isLoadingQrConfig } = useQuery<QrConfig>(
+    `/api/qrconfig`,
+    (error) => {
+      if (error) toast.error('Erro ao carregar as configurações de QR Code');
     }
   );
 
@@ -185,7 +195,35 @@ export default function LinkPage() {
                   Copiar Link
                 </Button>
                 <Button
-                  onClick={() => setIsOpenQr(true)}
+                  onClick={() => {
+                    setIsOpenQr(true);
+                    setQrCode(
+                      <QRCodeSVG
+                        value={`${
+                          import.meta.env.VITE_API_URL
+                        }/${shortId}?src=qrcode`}
+                        size={!isLoadingQrConfig ? qrConfig?.size : 180}
+                        bgColor={'#ffffff'}
+                        fgColor={
+                          !isLoadingQrConfig ? qrConfig?.color : undefined
+                        }
+                        level={'L'}
+                        includeMargin={false}
+                        imageSettings={
+                          !isLoadingQrConfig && qrConfig?.logo
+                            ? {
+                                src: qrConfig.logo,
+                                x: undefined,
+                                y: undefined,
+                                height: 35,
+                                width: 35,
+                                excavate: true,
+                              }
+                            : undefined
+                        }
+                      />
+                    );
+                  }}
                   $bg={theme.colors.blue2}
                   size="small"
                   $full
@@ -447,18 +485,12 @@ export default function LinkPage() {
         <HeaderModal text="Gerar Qr Code" close={() => setIsOpenQr(false)} />
         <ContentModal>
           <p style={{ marginBottom: '15px' }}>
-            Você deseja adicionar uma origem ao QR Code?
+            Faça o teste com seu QR Code antes de baixar:
           </p>
-          <AddSrcInputWrapper>
-            <Input
-              type="text"
-              placeholder="Adicione uma origem"
-              size="small"
-              $full
-              onChange={(event) => setQrSrc(event.target.value)}
-              value={qrSrc}
-            />
-          </AddSrcInputWrapper>
+
+          <Stack $items="center" ref={qrCodeRef}>
+            {qrCode}
+          </Stack>
         </ContentModal>
         <FooterModal>
           <Queue spacing={10}>
@@ -469,8 +501,23 @@ export default function LinkPage() {
             >
               Cancelar
             </ButtonOutline>
-            <Button style={{ width: '120px' }} size="small">
-              Baixar
+            <Button
+              onClick={downloadQrCode}
+              style={{ width: '120px' }}
+              size="small"
+            >
+              {downloading ? (
+                <Stack $items="center">
+                  <Loader
+                    width="20px"
+                    height="20px"
+                    $borderWidth="3px"
+                    color="white"
+                  />
+                </Stack>
+              ) : (
+                'Baixar'
+              )}
             </Button>
           </Queue>
         </FooterModal>
