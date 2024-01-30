@@ -5,10 +5,14 @@ import dayjs from 'dayjs';
 import MailService from '../mail/mail.service';
 import CustomBusinessError from '../utils/errors/CustomBusinessError';
 import { User } from '@prisma/client';
+import s3Client from '../utils/s3Client';
+import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import path from 'path';
 
 export default class UsersService {
   async getUser(userId: string) {
-    return await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { userId },
       select: {
         userId: true,
@@ -18,6 +22,13 @@ export default class UsersService {
         isVerified: true,
       },
     });
+
+    return {
+      user,
+      avatarPresignedUrl: user?.avatarUrl
+        ? await this.getAvatarUrl(user?.avatarUrl)
+        : '',
+    };
   }
 
   //SIGN UP AND VERIFY USER
@@ -111,7 +122,9 @@ export default class UsersService {
   async updateUser(data: UpdateUserData, userId: string) {
     const user = await prisma.user.findUniqueOrThrow({ where: { userId } });
 
-    if (data.password) data.password = await hash(data.password, 10);
+    if (data.password && data.newPassword)
+      data.newPassword = await hash(data.newPassword, 10);
+
     if (data.email && user.email !== data.email) {
       //Verify if email also will be changed, if yes send a new email verification
       await prisma.user.update({
@@ -125,7 +138,12 @@ export default class UsersService {
 
     await prisma.user.update({
       where: { userId },
-      data: { ...data },
+      data: {
+        password: data.newPassword,
+        avatarUrl: data.avatarUrl,
+        email: data.email,
+        name: data.name,
+      },
     });
 
     return { userId };
@@ -227,5 +245,43 @@ export default class UsersService {
         confirmEmailLink: `${verificationUrl}?token=${verificationToken.token}`,
       },
     });
+  }
+
+  async uploadAvatar(userId: string, avatar: Express.Multer.File) {
+    const user = await prisma.user.findUnique({ where: { userId } });
+    let avatarId = `avatar_${userId}${path.extname(avatar.originalname)}`;
+
+    if (user?.avatarUrl) avatarId = user.avatarUrl;
+
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: 'encurtando',
+        Body: avatar.buffer,
+        Key: `avatars/${avatarId}`,
+      })
+    );
+
+    if (!user?.avatarUrl)
+      await prisma.user.update({
+        where: { userId },
+        data: {
+          avatarUrl: avatarId,
+        },
+      });
+
+    return { avatarId };
+  }
+
+  private async getAvatarUrl(avatarId?: string | null) {
+    if (!avatarId) return;
+
+    return await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({
+        Bucket: 'encurtando',
+        Key: `avatars/${avatarId}`,
+      }),
+      { expiresIn: 10800 } //3h
+    );
   }
 }
