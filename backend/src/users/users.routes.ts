@@ -8,6 +8,7 @@ import {
   resetPassSchema,
   updateUserSchema,
 } from './users.validations';
+import upload from '../utils/upload';
 
 const usersRoutes = Router();
 const usersController = new UsersController();
@@ -374,7 +375,6 @@ const usersController = new UsersController();
  *                 context: users
  */
 
-
 usersRoutes.get('/', isAuthenticated, usersController.getUser);
 
 //SIGN UP AND VERIFY USER
@@ -404,5 +404,14 @@ usersRoutes.patch(
   usersController.update
 );
 usersRoutes.delete('/', isAuthenticated, usersController.delete);
+
+//UPLOAD AVATAR
+usersRoutes.put(
+  '/avatar',
+  isAuthenticated,
+  upload.single('avatar'),
+  usersController.uploadAvatar
+);
+//UPLOAD AVATAR
 
 export default usersRoutes;
