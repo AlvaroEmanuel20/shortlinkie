@@ -3,7 +3,6 @@ import useMutation from '../../../hooks/useMutation';
 import { Button } from '../../Button';
 import { Input } from '../../Input';
 import { Stack } from '../../Stack';
-import PhotoUpload from '../PhotoUpload';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { editUserSchema } from '../../../lib/schema.validations/users';
 import { InferType } from 'yup';
@@ -11,6 +10,8 @@ import { User, UserId } from '../../../lib/types';
 import { toast } from 'react-toastify';
 import { Loader } from '../../Loader';
 import { InputError } from '../../InputError';
+import { useContext } from 'react';
+import { AuthContext } from '../../../context/auth.context/AuthContext';
 
 export default function EditUserInfo({
   refetch,
@@ -19,6 +20,7 @@ export default function EditUserInfo({
   refetch: () => void;
   user?: User;
 }) {
+  const auth = useContext(AuthContext);
   const { mutate: updateUser, isLoading: isUpdatingUser } = useMutation(
     '/api/users',
     'patch',
@@ -47,14 +49,15 @@ export default function EditUserInfo({
       data
     );
 
-    if (res && res.userId) refetch();
+    if (res && res.userId) {
+      refetch();
+      auth?.refetchUser();
+    }
   });
 
   return (
     <form onSubmit={onSubmit} style={{ marginTop: '15px' }}>
       <Stack spacing={10}>
-        <PhotoUpload text="Carregar nova foto" />
-
         <Stack spacing={5}>
           <Input
             type="text"

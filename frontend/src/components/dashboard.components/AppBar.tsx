@@ -149,7 +149,7 @@ export default function Appbar() {
                 height="19px"
                 isLoading={!auth || !auth.user}
               >
-                <p>{auth?.user?.name}</p>
+                <p>{auth?.user?.user.name}</p>
               </Skeleton>
 
               <Skeleton
@@ -157,7 +157,7 @@ export default function Appbar() {
                 height="19px"
                 isLoading={!auth || !auth.user}
               >
-                <p>{auth?.user?.email}</p>
+                <p>{auth?.user?.user.email}</p>
               </Skeleton>
             </Stack>
 
@@ -171,10 +171,10 @@ export default function Appbar() {
                 {auth && auth.user ? (
                   <Avatar
                     $bgImg={
-                      auth.user.avatarUrl
-                        ? auth.user.avatarUrl
+                      auth.user.avatarPresignedUrl
+                        ? auth.user.avatarPresignedUrl
                         : `https://ui-avatars.com/api/?name=${
-                            auth.user.name.split(' ')[0]
+                            auth.user.user.name.split(' ')[0]
                           }&background=ADB5BD`
                     }
                   />

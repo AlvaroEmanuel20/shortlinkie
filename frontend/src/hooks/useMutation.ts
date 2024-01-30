@@ -5,8 +5,9 @@ import { AxiosError } from 'axios';
 
 export default function useMutation(
   url: string,
-  method: 'post' | 'delete' | 'patch',
-  onError?: (error: ApiError | undefined) => void
+  method: 'post' | 'delete' | 'patch' | 'put',
+  onError?: (error: ApiError | undefined) => void,
+  formData?: boolean
 ) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError>();
@@ -15,7 +16,21 @@ export default function useMutation(
     setIsLoading(true);
 
     try {
-      const res = (await apiClient<K>({ method, url, data })).data;
+      let res: K;
+
+      if (formData) {
+        res = (
+          await apiClient<K>({
+            method,
+            url,
+            data,
+            headers: { 'Content-Type': 'multipart/form-data' },
+          })
+        ).data;
+      } else {
+        res = (await apiClient<K>({ method, url, data })).data;
+      }
+
       setIsLoading(false);
       return res;
     } catch (error) {
