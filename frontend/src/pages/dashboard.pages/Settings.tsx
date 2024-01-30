@@ -2,7 +2,6 @@ import styled, { useTheme } from 'styled-components';
 import { Card } from '../../components/dashboard.components/Card';
 import { Stack } from '../../components/Stack';
 import { Button, ButtonOutline } from '../../components/Button';
-import PhotoUpload from '../../components/dashboard.components/PhotoUpload';
 import { QRCodeSVG } from 'qrcode.react';
 import useQuery from '../../hooks/useQuery';
 import { QrConfig, User, UserId } from '../../lib/types';
@@ -20,6 +19,8 @@ import { FooterModal } from '../../components/dashboard.components/modal.compone
 import { Queue } from '../../components/Queue';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import UpdateQrLogo from '../../components/dashboard.components/forms.components/UpdateQrLogo';
+import UpdateAvatar from '../../components/dashboard.components/forms.components/UpdateAvatar';
 
 const SettingsStyles = styled.div`
   padding-bottom: 45px;
@@ -55,25 +56,31 @@ export default function Settings() {
     data: qrConfig,
     isLoading: isLoadingQrConfig,
     refetch: refetchQrConfig,
-  } = useQuery<QrConfig>('/api/qrconfig', (error) => {
-    if (error?.statusCode === 404) {
-      toast.error('Configurações de QR Code não encontrada.');
-    } else {
-      toast.error('Erro ao carregar as configurações de QR Code.');
+  } = useQuery<{ qrConfig: QrConfig; logoPresignedUrl?: string }>(
+    '/api/qrconfig',
+    (error) => {
+      if (error?.statusCode === 404) {
+        toast.error('Configurações de QR Code não encontrada.');
+      } else {
+        toast.error('Erro ao carregar as configurações de QR Code.');
+      }
     }
-  });
+  );
 
   const {
     data: user,
     isLoading: isLoadingUser,
     refetch: refetchUser,
-  } = useQuery<User>('/api/users', (error) => {
-    if (error?.statusCode === 404) {
-      toast.error('Usuário não encontrado.');
-    } else {
-      toast.error('Erro ao carregar informações do usuário');
+  } = useQuery<{ user: User; avatarPresignedUrl?: string }>(
+    '/api/users',
+    (error) => {
+      if (error?.statusCode === 404) {
+        toast.error('Usuário não encontrado.');
+      } else {
+        toast.error('Erro ao carregar informações do usuário');
+      }
     }
-  });
+  );
 
   const { mutate: newVerifyEmail, isLoading: isSendingNewVerifyEmail } =
     useMutation('/api/users/newverify', 'patch', (error) => {
@@ -102,12 +109,16 @@ export default function Settings() {
         <Skeleton isLoading={isLoadingQrConfig}>
           <Card>
             <h2>Preferências de QR Code</h2>
-            <EditQrconfigForm refetch={refetchQrConfig} qrConfig={qrConfig} />
+            <EditQrconfigForm
+              refetch={refetchQrConfig}
+              qrConfig={qrConfig?.qrConfig}
+            />
 
-            <Stack style={{ marginTop: '20px' }} spacing={15}>
-              <p>Adicione uma logo aos seus QR Codes:</p>
-              <PhotoUpload text="Carregar nova logo" />
-            </Stack>
+            <UpdateQrLogo
+              isLoadingQrConfig={isLoadingQrConfig}
+              qrConfig={qrConfig}
+              refetch={refetchQrConfig}
+            />
 
             <hr />
 
@@ -116,12 +127,24 @@ export default function Settings() {
 
               <QRCodeSVG
                 style={{ alignSelf: 'center' }}
-                value={'https://picturesofpeoplescanningqrcodes.tumblr.com/'}
-                size={qrConfig?.size || 180}
+                value={'http://localhost:5173/'}
+                size={qrConfig?.qrConfig.size || 180}
                 bgColor={'#ffffff'}
-                fgColor={qrConfig?.color}
+                fgColor={qrConfig?.qrConfig.color}
                 level={'L'}
                 includeMargin={false}
+                imageSettings={
+                  qrConfig?.logoPresignedUrl
+                    ? {
+                        src: qrConfig.logoPresignedUrl,
+                        x: undefined,
+                        y: undefined,
+                        height: 35,
+                        width: 35,
+                        excavate: true,
+                      }
+                    : undefined
+                }
               />
             </Stack>
           </Card>
@@ -131,7 +154,7 @@ export default function Settings() {
           <Card>
             <h2>Atualize seu perfil</h2>
 
-            {!user?.isVerified && (
+            {!user?.user.isVerified && (
               <Card
                 style={{ marginTop: '15px', fontSize: theme.fontSize.small }}
               >
@@ -156,7 +179,9 @@ export default function Settings() {
               </Card>
             )}
 
-            <EditUserInfo user={user} refetch={refetchUser} />
+            <UpdateAvatar />
+
+            <EditUserInfo user={user?.user} refetch={refetchUser} />
 
             <h2 style={{ margin: '20px 0 15px 0' }}>Atualize sua senha</h2>
 

@@ -79,9 +79,9 @@ export default function LinkPage() {
   const { shortId } = useParams();
   const theme = useTheme();
   const navigate = useNavigate();
+
   const { inputRef, copyFunc } = useCopy();
-  const { qrCode, qrCodeRef, setQrCode, downloadQrCode, downloading } =
-    useQrCode();
+  const { qrCodeRef, downloadQrCode, downloading } = useQrCode();
 
   const [src, setSrc] = useState('');
 
@@ -96,12 +96,13 @@ export default function LinkPage() {
     }
   );
 
-  const { data: qrConfig, isLoading: isLoadingQrConfig } = useQuery<QrConfig>(
-    `/api/qrconfig`,
-    (error) => {
-      if (error) toast.error('Erro ao carregar as configurações de QR Code');
-    }
-  );
+  const { data: qrConfig, isLoading: isLoadingQrConfig } = useQuery<{
+    qrConfig: QrConfig;
+    logoPresignedUrl?: string;
+    base64LogoPresignedUrl?: string;
+  }>(`/api/qrconfig`, (error) => {
+    if (error) toast.error('Erro ao carregar as configurações de QR Code');
+  });
 
   const { data: clicksBySrc, isLoading: isLoadingClicksBySrc } =
     useQuery<ClicksBySrc>(`/shorturls/clicks-src/${shortId}`, (error) => {
@@ -195,35 +196,7 @@ export default function LinkPage() {
                   Copiar Link
                 </Button>
                 <Button
-                  onClick={() => {
-                    setIsOpenQr(true);
-                    setQrCode(
-                      <QRCodeSVG
-                        value={`${
-                          import.meta.env.VITE_API_URL
-                        }/${shortId}?src=qrcode`}
-                        size={!isLoadingQrConfig ? qrConfig?.size : 180}
-                        bgColor={'#ffffff'}
-                        fgColor={
-                          !isLoadingQrConfig ? qrConfig?.color : undefined
-                        }
-                        level={'L'}
-                        includeMargin={false}
-                        imageSettings={
-                          !isLoadingQrConfig && qrConfig?.logo
-                            ? {
-                                src: qrConfig.logo,
-                                x: undefined,
-                                y: undefined,
-                                height: 35,
-                                width: 35,
-                                excavate: true,
-                              }
-                            : undefined
-                        }
-                      />
-                    );
-                  }}
+                  onClick={() => setIsOpenQr(true)}
                   $bg={theme.colors.blue2}
                   size="small"
                   $full
@@ -489,7 +462,26 @@ export default function LinkPage() {
           </p>
 
           <Stack $items="center" ref={qrCodeRef}>
-            {qrCode}
+            <QRCodeSVG
+              value={`${import.meta.env.VITE_API_URL}/${shortId}?src=qrcode`}
+              size={qrConfig?.qrConfig.size || 180}
+              bgColor={'#ffffff'}
+              fgColor={qrConfig?.qrConfig.color}
+              level={'L'}
+              includeMargin={false}
+              imageSettings={
+                !isLoadingQrConfig && qrConfig?.base64LogoPresignedUrl
+                  ? {
+                      src: qrConfig.base64LogoPresignedUrl,
+                      x: undefined,
+                      y: undefined,
+                      height: 35,
+                      width: 35,
+                      excavate: true,
+                    }
+                  : undefined
+              }
+            />
           </Stack>
         </ContentModal>
         <FooterModal>
