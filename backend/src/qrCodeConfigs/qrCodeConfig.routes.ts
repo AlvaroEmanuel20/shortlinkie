@@ -3,6 +3,7 @@ import QrCodeConfigController from './qrCodeConfig.controller';
 import validate from '../middlewares/validate';
 import { updateQrCodeConfigSchema } from './qrCodeConfig.validations';
 import isAuthenticated from '../middlewares/isAuthenticated';
+import upload from '../utils/upload';
 
 const qrCodeConfigRoutes = Router();
 const qrCodeConfigController = new QrCodeConfigController();
@@ -97,6 +98,13 @@ qrCodeConfigRoutes.patch(
   validate(updateQrCodeConfigSchema),
   isAuthenticated,
   qrCodeConfigController.update
+);
+
+qrCodeConfigRoutes.put(
+  '/logo',
+  isAuthenticated,
+  upload.single('logo'),
+  qrCodeConfigController.uploadLogo
 );
 
 export default qrCodeConfigRoutes;

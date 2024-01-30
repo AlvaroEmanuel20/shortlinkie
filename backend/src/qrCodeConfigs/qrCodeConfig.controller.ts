@@ -8,11 +8,7 @@ export default class QrCodeConfigController {
       const qrCodeConfigService = new QrCodeConfigService();
       res.json(await qrCodeConfigService.getConfig(req.user.userId));
     } catch (error) {
-      throw new HttpBusinessError(
-        'QR Code config not found',
-        404,
-        'qrconfig'
-      );
+      throw new HttpBusinessError('QR Code config not found', 404, 'qrconfig');
     }
   }
 
@@ -25,10 +21,33 @@ export default class QrCodeConfigController {
       );
       res.json(result);
     } catch (error) {
+      throw new HttpBusinessError('QR Code config not found', 404, 'qrconfig');
+    }
+  }
+
+  async uploadLogo(req: Request, res: Response) {
+    try {
+      const qrConfigServices = new QrCodeConfigService();
+
+      if (!req.file) {
+        throw new HttpBusinessError(
+          'Upload QR Code logo server error',
+          500,
+          'qrcodelogo'
+        );
+      }
+
+      const { logoId } = await qrConfigServices.uploadLogo(
+        req.user.userId,
+        req.file
+      );
+
+      res.json({ logoId });
+    } catch (error) {
       throw new HttpBusinessError(
-        'QR Code config not found',
-        404,
-        'qrconfig'
+        'Upload QR Code logo server error',
+        500,
+        'qrcodelogo'
       );
     }
   }
