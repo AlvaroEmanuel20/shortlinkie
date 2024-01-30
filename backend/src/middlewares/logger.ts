@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 
-export default async function logger(
+export default function logger(
   req: Request,
   res: Response,
   next: NextFunction

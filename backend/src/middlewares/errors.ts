@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import HttpBusinessError from '../utils/errors/HttpBusinessError';
 
-export default async function errors(
+export default function errors(
   error: Error,
   req: Request,
   res: Response,
