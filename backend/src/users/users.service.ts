@@ -5,10 +5,14 @@ import dayjs from 'dayjs';
 import MailService from '../mail/mail.service';
 import CustomBusinessError from '../utils/errors/CustomBusinessError';
 import { User } from '@prisma/client';
+import s3Client from '../utils/s3Client';
+import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import path from 'path';
 
 export default class UsersService {
   async getUser(userId: string) {
-    return await prisma.user.findUnique({
+    const user = await prisma.user.findUnique({
       where: { userId },
       select: {
         userId: true,
@@ -18,6 +22,13 @@ export default class UsersService {
         isVerified: true,
       },
     });
+
+    return {
+      user,
+      avatarPresignedUrl: user?.avatarUrl
+        ? await this.getAvatarUrl(user?.avatarUrl)
+        : '',
+    };
   }
 
   //SIGN UP AND VERIFY USER
@@ -111,7 +122,9 @@ export default class UsersService {
   async updateUser(data: UpdateUserData, userId: string) {
     const user = await prisma.user.findUniqueOrThrow({ where: { userId } });
 
-    if (data.password) data.password = await hash(data.password, 10);
+    if (data.password && data.newPassword)
+      data.newPassword = await hash(data.newPassword, 10);
+
     if (data.email && user.email !== data.email) {
       //Verify if email also will be changed, if yes send a new email verification
       await prisma.user.update({
@@ -125,7 +138,12 @@ export default class UsersService {
 
     await prisma.user.update({
       where: { userId },
-      data: { ...data },
+      data: {
+        password: data.newPassword,
+        avatarUrl: data.avatarUrl,
+        email: data.email,
+        name: data.name,
+      },
     });
 
     return { userId };
@@ -147,9 +165,15 @@ export default class UsersService {
     const resetUrl = process.env.RESET_PASS_URL;
     await mailService.sendMail({
       to: user.email,
-      subject: 'Reset password',
+      subject: 'Recupere sua senha e continue usando o Encurtando',
       html: `<a href="${resetUrl}?token=${resetPassToken.token}">Clique para resetar</a>`,
-      plainText: '',
+      plainText: `Recupere aqui: ${resetUrl}?token=${resetPassToken.token}`,
+      templateId: Number(process.env.RECOVER_PASSWORD_TEMPLATE_ID),
+      params: {
+        FNAME: user.name,
+        recoverPassLink: `${resetUrl}?token=${resetPassToken.token}`,
+        newRecoverPassEmailLink: `${process.env.FRONT_URL}/recuperar-senha`,
+      },
     });
 
     return { userId: user.userId, sentEmail: true };
@@ -212,9 +236,52 @@ export default class UsersService {
     const verificationUrl = process.env.VERIFICATION_USER_URL;
     await mailService.sendMail({
       to: user.email,
-      subject: 'Confirm account',
+      subject: 'Bem vindo(a) ao Encurtando, confirme seu email',
       html: `<a href="${verificationUrl}?token=${verificationToken.token}">Clique para verificar</a>`,
-      plainText: '',
+      plainText: `Verifique aqui: ${verificationUrl}?token=${verificationToken.token}`,
+      templateId: Number(process.env.CONFIRM_ACCOUNT_TEMPLATE_ID),
+      params: {
+        FNAME: user.name,
+        confirmEmailLink: `${verificationUrl}?token=${verificationToken.token}`,
+      },
     });
+  }
+
+  async uploadAvatar(userId: string, avatar: Express.Multer.File) {
+    const user = await prisma.user.findUnique({ where: { userId } });
+    let avatarId = `avatar_${userId}${path.extname(avatar.originalname)}`;
+
+    if (user?.avatarUrl) avatarId = user.avatarUrl;
+
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: 'encurtando',
+        Body: avatar.buffer,
+        Key: `avatars/${avatarId}`,
+      })
+    );
+
+    if (!user?.avatarUrl)
+      await prisma.user.update({
+        where: { userId },
+        data: {
+          avatarUrl: avatarId,
+        },
+      });
+
+    return { avatarId };
+  }
+
+  private async getAvatarUrl(avatarId?: string | null) {
+    if (!avatarId) return;
+
+    return await getSignedUrl(
+      s3Client,
+      new GetObjectCommand({
+        Bucket: 'encurtando',
+        Key: `avatars/${avatarId}`,
+      }),
+      { expiresIn: 10800 } //3h
+    );
   }
 }

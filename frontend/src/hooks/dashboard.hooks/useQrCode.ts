@@ -1,9 +1,8 @@
-import { ReactNode, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import * as htmlToImg from 'html-to-image';
 import { toast } from 'react-toastify';
 
 export default function useQrCode() {
-  const [qrCode, setQrCode] = useState<ReactNode>();
   const [downloading, setDownloading] = useState(false);
   const qrCodeRef = useRef<HTMLDivElement>(null);
 
@@ -27,8 +26,8 @@ export default function useQrCode() {
       .catch(() => {
         toast.error('Erro ao baixar QR Code');
         setDownloading(false);
-      });
+      }); 
   };
 
-  return { qrCode, setQrCode, downloadQrCode, downloading, qrCodeRef };
+  return { downloadQrCode, downloading, qrCodeRef };
 }

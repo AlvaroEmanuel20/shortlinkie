@@ -135,4 +135,27 @@ export default class UsersController {
       throw new HttpBusinessError('User not found', 404, 'users');
     }
   }
+
+  async uploadAvatar(req: Request, res: Response) {
+    try {
+      const usersService = new UsersService();
+
+      if (!req.file) {
+        throw new HttpBusinessError(
+          'Upload avatar server error',
+          500,
+          'avatars'
+        );
+      }
+
+      const { avatarId } = await usersService.uploadAvatar(
+        req.user.userId,
+        req.file
+      );
+
+      res.json({ avatarId });
+    } catch (error) {
+      throw new HttpBusinessError('Upload avatar server error', 500, 'avatars');
+    }
+  }
 }

@@ -10,4 +10,5 @@ export interface UpdateUserData {
   email?: string;
   avatarUrl?: string;
   password?: string;
+  newPassword?: string;
 }

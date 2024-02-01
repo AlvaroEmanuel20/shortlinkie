@@ -7,21 +7,30 @@ import LoadingPage from '../../components/LoadingPage';
 
 interface AuthContext {
   isAuthenticated: boolean;
-  user: User | undefined;
+  user: UserAvatarUrl | undefined;
+  refetchUser: () => void;
 }
+
+type UserAvatarUrl = {
+  user: User;
+  avatarPresignedUrl: string | undefined;
+};
 
 export const AuthContext = createContext<AuthContext | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User>();
+  const [user, setUser] = useState<UserAvatarUrl>();
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  const [fetchs, setFetchs] = useState(0);
+  const refetchUser = () => setFetchs(fetchs + 1);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = (await apiClient.get<User>('/api/users')).data;
+        const res = (await apiClient.get<UserAvatarUrl>('/api/users')).data;
         setUser(res);
         setIsAuthenticated(true);
         setIsLoading(false);
@@ -37,12 +46,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     fetchUser();
-  }, []);
+  }, [fetchs]);
 
   if (isLoading) return <LoadingPage />;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, refetchUser }}>
       {children}
     </AuthContext.Provider>
   );
