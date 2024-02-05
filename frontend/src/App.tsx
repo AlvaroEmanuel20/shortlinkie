@@ -33,19 +33,19 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: 'entrar',
+    path: '/entrar',
     element: <Login />,
   },
   {
-    path: 'cadastro',
+    path: '/cadastro',
     element: <SignUp />,
   },
   {
-    path: 'recuperar-senha',
+    path: '/recuperar-senha',
     element: <ResetPass />,
   },
   {
-    path: 'nova-senha',
+    path: '/nova-senha',
     element: <NewPass />,
   },
 ]);
