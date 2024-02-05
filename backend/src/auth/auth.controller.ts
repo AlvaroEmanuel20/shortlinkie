@@ -7,8 +7,13 @@ export default class AuthController {
   private readonly cookiesOpt: CookieOptions = {
     httpOnly: true,
     maxAge: process.env.COOKIES_MAX_AGE as number | undefined,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: true,
+    secure: process.env.COOKIES_SECURE as boolean | undefined,
+    sameSite: process.env.COOKIES_SAME_SITE as
+      | boolean
+      | 'lax'
+      | 'strict'
+      | 'none'
+      | undefined,
   };
 
   async login(req: Request, res: Response) {
