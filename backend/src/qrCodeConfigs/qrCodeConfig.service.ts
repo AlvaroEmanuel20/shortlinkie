@@ -12,15 +12,17 @@ export default class QrCodeConfigService {
       where: { userId },
     });
 
-    return {
-      qrConfig,
-      logoPresignedUrl: qrConfig?.logo
-        ? await this.getLogoUrl(qrConfig?.logo)
-        : '',
-      base64LogoPresignedUrl: await imageUrlToBase64(
-        (await this.getLogoUrl(qrConfig?.logo)) || ''
-      ),
-    };
+    if (qrConfig && qrConfig.logo) {
+      return {
+        qrConfig,
+        logoPresignedUrl: await this.getLogoUrl(qrConfig.logo),
+        base64LogoPresignedUrl: await imageUrlToBase64(
+          await this.getLogoUrl(qrConfig.logo)
+        ),
+      };
+    }
+
+    return { qrConfig };
   }
 
   async updateConfig(data: QrCodeConfigUpdate, userId: string) {
@@ -59,7 +61,7 @@ export default class QrCodeConfigService {
     return { logoId };
   }
 
-  private async getLogoUrl(logoId?: string | null) {
+  private async getLogoUrl(logoId?: string | null | undefined) {
     if (!logoId) return;
 
     return await getSignedUrl(

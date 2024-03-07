@@ -83,9 +83,13 @@ export default function Settings() {
   );
 
   const { mutate: newVerifyEmail, isLoading: isSendingNewVerifyEmail } =
-    useMutation('/api/users/newverify', 'patch', (error) => {
-      if (error) toast.error('Erro ao gerar novo email');
+    useMutation('/api/users/newverify', 'post', (error) => {
+      if (error) toast.error('Erro ao gerar novo email de verificação');
     });
+  const requestNewVerifyEmail = async () => {
+    const res = await newVerifyEmail<undefined, UserId>();
+    if (res && res.userId) toast.success('Email enviado com sucesso');
+  };
 
   const { mutate: deleteShorturl, isLoading: isDeletingAccount } = useMutation(
     `/api/users`,
@@ -162,7 +166,7 @@ export default function Settings() {
                 e clique no link do email que enviamos para você. Caso não
                 consiga{' '}
                 <button
-                  onClick={newVerifyEmail}
+                  onClick={requestNewVerifyEmail}
                   style={{
                     color: theme.colors.blue2,
                     fontWeight: 'bold',
