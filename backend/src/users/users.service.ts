@@ -6,7 +6,11 @@ import MailService from '../mail/mail.service';
 import CustomBusinessError from '../utils/errors/CustomBusinessError';
 import { User } from '@prisma/client';
 import s3Client from '../utils/s3Client';
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import path from 'path';
 
@@ -211,11 +215,35 @@ export default class UsersService {
   //RESET PASS
 
   async deleteUser(userId: string) {
+    const user = await prisma.user.findUnique({ where: { userId } });
+    const qrConfig = await prisma.qrCodeConfig.findUnique({
+      where: { userId },
+    });
+
+    if (user?.avatarUrl) {
+      await s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: 'encurtando',
+          Key: `avatars/${user.avatarUrl}`,
+        })
+      );
+    }
+
+    if (qrConfig?.logo) {
+      await s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: 'encurtando',
+          Key: `qrcode_logos/${qrConfig.logo}`,
+        })
+      );
+    }
+
     await prisma.$transaction([
       prisma.click.deleteMany({ where: { shortUrl: { userId } } }),
       prisma.shortUrl.deleteMany({ where: { userId } }),
       prisma.verificationToken.deleteMany({ where: { userId } }),
       prisma.resetPassToken.deleteMany({ where: { userId } }),
+      prisma.invalidToken.deleteMany({ where: { userId } }),
       prisma.qrCodeConfig.delete({ where: { userId } }),
       prisma.user.delete({ where: { userId } }),
     ]);
