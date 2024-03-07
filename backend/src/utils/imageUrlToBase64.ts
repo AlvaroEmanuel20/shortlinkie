@@ -1,6 +1,8 @@
 import CustomBusinessError from './errors/CustomBusinessError';
 
-export default async function imageUrlToBase64(url: string) {
+export default async function imageUrlToBase64(url: string | null | undefined) {
+  if (!url) return '';
+
   try {
     const response = await fetch(url);
     const blob = await response.arrayBuffer();
