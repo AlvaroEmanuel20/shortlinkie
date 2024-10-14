@@ -1,0 +1,208 @@
+openapi: 3.0.0
+
+info:
+  title: ShortLinkie API
+  version: 1.0.0
+  description: This API allows you to shorten long URLs, making sharing and managing links easier. You can create, retrieve, and delete shortened links, as well as check access statistics.
+
+servers:
+  - url: http://localhost:{port}
+    description: Development Server
+    variables:
+      port:
+        default: '3002'
+        description: Application PORT
+
+components:
+  schemas:
+    HttpBusinessError:
+      type: object
+      properties:
+        message:
+          type: string
+        statusCode:
+          type: number
+        context:
+          type: string
+    ShortUrl:
+      type: object
+      properties:
+        _count:
+          type: object
+          properties:
+            clicks:
+              type: integer
+        shortId:
+          type: string
+        originalUrl:
+          type: string
+          format: uri
+        title:
+          type: string
+        userId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    ShortId:
+      type: object
+      properties:
+        shortId:
+          type: string
+  responses:
+    ServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HttpBusinessError"
+          example:
+            message: Internal Server Error
+            statusCode: 500
+            context: server
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HttpBusinessError"
+          example:
+            message: Resource not found
+            statusCode: 404
+            context: example
+
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+
+paths:
+  /{shortId}:
+    summary: Redirect the user to target url.
+    get:
+      tags:
+        - ShortUrls
+      parameters:
+        - name: id
+          in: path
+          description: ShortUrl Id
+          required: true
+          schema:
+            type: string
+      responses:
+        302:
+          description: Successfully redirected
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+  /shorturls:
+    get:
+      security:
+        - cookieAuth: []
+      description: Get all shorturls
+      tags:
+        - ShortUrls
+      responses:
+        200:
+          description: Array with shorturls
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ShortUrl"
+        500:
+          $ref: "#/components/responses/ServerError"
+    post:
+      security:
+        - cookieAuth: []
+      description: Create a new shorturl
+      tags:
+        - ShortUrls
+      responses:
+        201:
+          description: Successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShortId"
+        500:
+          $ref: "#/components/responses/ServerError"
+  /shorturls/{shortId}:
+    get:
+      security:
+        - cookieAuth: []
+      tags:
+        - ShortUrls
+      parameters:
+        - name: id
+          in: path
+          description: ShortUrl Id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: ShortUrl
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShortUrl"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+    patch:
+      security:
+        - cookieAuth: []
+      tags:
+        - ShortUrls
+      parameters:
+        - name: id
+          in: path
+          description: ShortUrl Id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShortId"
+        409:
+          description: There is an shorturl with this shortId
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HttpBusinessError"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
+    delete:
+      security:
+        - cookieAuth: []
+      tags:
+        - ShortUrls
+      parameters:
+        - name: id
+          in: path
+          description: ShortUrl Id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShortId"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/ServerError"
