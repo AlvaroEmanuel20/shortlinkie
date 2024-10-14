@@ -42,10 +42,7 @@ export default class ShortUrlsController {
       const shortUrlsService = new ShortUrlsService();
       const { src } = req.query as RedirectQuery;
 
-      const result = await shortUrlsService.redirect(
-        req.params.shortId,
-        src,
-      );
+      const result = await shortUrlsService.redirect(req.params.shortId, src);
 
       res.redirect(result.originalUrl);
     } catch (error) {

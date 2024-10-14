@@ -25,7 +25,6 @@ app.use('/api-docs', docsRoutes);
 app.use('/', shortUrlsRoutes);
 app.use('/api', apiRoutes);
 
-
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
   if (error instanceof HttpBusinessError) {
     return res.status(error.statusCode).json({

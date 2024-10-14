@@ -43,7 +43,7 @@ export default class ShortUrlsService {
   async countClicksBySrcOfShortId(shortId: string) {
     return await prisma.click.groupBy({
       by: ['source'],
-      where: { shortId, source: { not: null }},
+      where: { shortId, source: { not: null } },
       _count: true,
     });
   }
