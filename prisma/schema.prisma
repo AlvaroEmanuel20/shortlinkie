@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId             String               @id @default(uuid())
+  name               String
+  email              String               @unique
+  password           String
+  isVerified         Boolean              @default(false)
+  shortUrls          ShortUrl[]
+  invalidTokens      InvalidToken[]
+  TransactionalToken TransactionalToken[]
+}
+
+model ShortUrl {
+  shortId     String   @id
+  originalUrl String
+  title       String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [userId])
+  createdAt   DateTime @default(now())
+  clicks      Click[]
+}
+
+model Click {
+  clickId   String   @id @default(uuid())
+  source    String?
+  createdAt DateTime @default(now())
+  shortUrl  ShortUrl @relation(fields: [shortId], references: [shortId])
+  shortId   String
+}
+
+model InvalidToken {
+  token  String @id //JWT token
+  userId String
+  user   User   @relation(fields: [userId], references: [userId])
+}
+
+model TransactionalToken {
+  token     String                 @id @default(uuid())
+  exp       DateTime
+  tokenType TransactionalTokenType
+  userId    String
+  user      User                   @relation(fields: [userId], references: [userId])
+}
+
+enum TransactionalTokenType {
+  VERIFICATION
+  RESET_PASS
+}
