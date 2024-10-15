@@ -27,14 +27,20 @@ export default class ShortUrlsController {
 
   async getTotalClicksBySrc(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
-    res.json(await shortUrlsService.countTotalClicksBySrc(req.user.userId));
+    const totalClicksBySrc = await shortUrlsService.countTotalClicksBySrc(
+      req.user.userId
+    );
+
+    res.json(totalClicksBySrc);
   }
 
   async getClicksBySrcOfShortId(req: Request, res: Response) {
     const shortUrlsService = new ShortUrlsService();
-    res.json(
-      await shortUrlsService.countClicksBySrcOfShortId(req.params.shortId)
+    const clicksBySrc = await shortUrlsService.countClicksBySrcOfShortId(
+      req.params.shortId
     );
+
+    res.json(clicksBySrc);
   }
 
   async redirect(req: Request, res: Response) {
