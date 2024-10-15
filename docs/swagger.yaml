@@ -49,6 +49,15 @@ components:
       properties:
         shortId:
           type: string
+    ClicksInSrc:
+      type: object
+      properties:
+        source:
+          type: string
+        _count:
+          type: number
+
+
   responses:
     ServerError:
       description: Internal Server Error
@@ -206,3 +215,48 @@ paths:
           $ref: "#/components/responses/NotFound"
         500:
           $ref: "#/components/responses/ServerError"
+  /shorturls/total-clicks-by-src:
+    get:
+      security:
+        - cookieAuth: []
+      description: Total of clicks by each source param
+      tags:
+        - ShortUrls
+      responses:
+        200:
+          description: Array with clicks by source
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClicksInSrc"
+        500:
+          $ref: "#/components/responses/ServerError"
+  /shorturls/clicks-by-src/{shortId}:
+    get:
+      security:
+        - cookieAuth: []
+      description: Total of clicks by each source param
+      tags:
+        - ShortUrls
+      parameters:
+        - in: path
+          name: shortId
+          description: ShortUrl Id
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Array with clicks by source
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClicksInSrc"
+        500:
+          $ref: "#/components/responses/ServerError"
+
+  
