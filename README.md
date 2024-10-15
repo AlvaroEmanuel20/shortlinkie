@@ -8,11 +8,12 @@ Este repositório contém o código-fonte de uma API REST para encurtar e gerenc
 - Rastrear a quantidade de cliques em cada link
 - Rastrear origens diferentes de cliques (Exemplo: ?src=instagram)
 
-Além da parte técnica que permite essas funcionalidades:
+Não funcionais:
 
 - Autenticação com envio de email utilizando a integração com Brevo
 - Procedimento para resetar senha
 - Integração com banco de dados usando Prisma ORM
+- Documentação da API com OpenAPI Swagger
 
 ## Configuração do Ambiente
 
